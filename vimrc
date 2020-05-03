@@ -81,7 +81,7 @@ nnoremap <silent> <Leader>pv :NERDTreeFind<CR>
 "Deoplete
 let g:deoplete#enable_at_startup = 1
 call deoplete#custom#option('auto_complete_popup', "manual")
-"imap <silent><expr> <Tab> deoplete#complete()
+imap <silent><expr> <C-k> deoplete#complete()
 imap <silent><expr> <C-Space> deoplete#complete()
 set pyxversion=3
 
