@@ -73,6 +73,7 @@ vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 
 "NerdTree
 let NERDTreeMinimalUI = 1
+let NERDTreeShowHidden = 1
 nmap <leader>u :UndotreeShow<CR>
 nnoremap <leader>pt :NERDTreeToggle<CR>
 nnoremap <silent> <Leader>pv :NERDTreeFind<CR>
