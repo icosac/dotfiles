@@ -22,7 +22,11 @@ set matchpairs+=<:>
 
 set mouse=a
 
+set laststatus=2 "Set status bar always on
+
 set number
+
+set clipboard+=unnamedplus
 
 if has('persistent_undo')      "check if your vim version supports it
   silent !mkdir -p $HOME/.vim/undo
@@ -49,8 +53,6 @@ inoremap <C-BS> <C-\><C-o>db
 
 " Map Ctrl-Del to delete next word in insert mode
 imap <C-Del> <C-o>dw
-
-"set clipboard+=unnamedplus
 
 if filereadable(expand("~/.vim/vimrc.plug"))
 	source ~/.vim/vimrc.plug
@@ -80,7 +82,7 @@ nnoremap <silent> <Leader>pv :NERDTreeFind<CR>
 
 "Deoplete
 let g:deoplete#enable_at_startup = 1
-call deoplete#custom#option('auto_complete_popup', "manual")
+call deoplete#custom#option('auto_complete_popup', "manual", "sources:{'python':[jedi]}")
 imap <silent><expr> <C-k> deoplete#complete()
 imap <silent><expr> <C-Space> deoplete#complete()
 set pyxversion=3
