@@ -81,11 +81,11 @@ nnoremap <leader>pt :NERDTreeToggle<CR>
 nnoremap <silent> <Leader>pv :NERDTreeFind<CR>
 
 "Deoplete
+set pyxversion=3
 let g:deoplete#enable_at_startup = 1
 call deoplete#custom#option('auto_complete_popup', "manual", "sources:{'python':[jedi]}")
 imap <silent><expr> <C-k> deoplete#complete()
 imap <silent><expr> <C-Space> deoplete#complete()
-set pyxversion=3
 
 "YouCompleteMe
 nnoremap <silent> <Leader>gd :YcmCompleter GoTo<CR>

@@ -20,7 +20,11 @@ esac
 echo "Installing for $DIR"
 cd $DIR
 
-bash install.sh $1
+packages=()
+for p in "$@"; do
+  packages+=($p)
+done
+bash install.sh "${packages[*]}"
 
 echo "Finished"
 
