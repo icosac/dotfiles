@@ -21,13 +21,13 @@ echo "About to install packages: ${packages[*]}"
 #Define commands
 MK=make
 MOVE=cp
-MKDIR=mkdir -p 
+MKDIR="mkdir -p "
 echo "Updating system"
 if [ "$( whoami )" == "root" ]; then
   apt-get update
   IN="apt-get install -y "
 else
-#  sudo apt-get update
+  sudo apt-get update
   IN="sudo apt-get install -y "
 fi
 
@@ -35,11 +35,11 @@ fi
 echo -e "${BLUE}Installing packages"
 if in_list "${packages[@]}" "neovim"; then
   echo -e "${GREEN}Intalling neovim from source$NC"
-  sudo apt-get build-essential install make automake cmake pkg-config libtool libtool-bin gettext
+  $IN build-essential install make automake cmake pkg-config libtool libtool-bin gettext
   git clone -b stable https://github.com/neovim/neovim
   cd neovim 
   make CMAKE_BUILD_TYPE=Release -j
-  sudo make install
+  if [ $(whoami) == "root" ]; then make install; else sudo make install; fi
   #NEOVIM
   echo -e "${GREEN}Configuring neovim${NC}"
   if [ ! -d ~/.config/nvim ]; then
