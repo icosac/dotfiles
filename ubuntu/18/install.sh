@@ -40,24 +40,23 @@ if in_list "${packages[@]}" "neovim"; then
   cd neovim 
   make CMAKE_BUILD_TYPE=Release -j
   sudo make install
+  #NEOVIM
+  echo -e "${GREEN}Configuring neovim${NC}"
+  if [ ! -d ~/.config/nvim ]; then
+    $MKDIR ~/.config/nvim
+  fi
+  MV $MOVE "./neovim/init.vim" "~/.config/nvim/init.vim"
+  curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  nvim +PlugInstall +qa
 fi
 
 packages=( $( remove "${packages[*]}" "neovim" ) )
 
 echo -e "${GREEN}Installing remaining packages: ${packages[*]} ${NC}"
-$IN --dry-run ${packages[*]}
+$IN ${packages[*]}
 
 #Move configuration files
 echo -e "${BLUE}Moving configuration files${NC}"
-
-#NEOVIM
-echo -e "${GREEN}Configuring neovim${NC}"
-if [ ! -d ~/.config/nvim ]; then
-  $MKDIR ~/.config/nvim
-fi
-MV $MOVE "./neovim/init.vim" "~/.config/nvim/init.vim"
-curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-nvim +PlugInstall +qa
 
 #VIM
 echo -e "${GREEN}Configuring vim${NC}"
@@ -71,14 +70,3 @@ vim +PlugInstall +qa
 
 #TMUX
 MV $MOVE "./tmux/tmux.conf" "~/.tmux.conf"
-
-
-
-
-
-
-
-
-
-
-
