@@ -1,50 +1,28 @@
 #!/bin/bash
 SHELL=$(cat /proc/version)
-VIM=$1
 
-MV=cp
+echo "$SHELL"
+#This file serves the only purpose of choosing the right OS.
+case $SHELL in
+    *Ubuntu*)
+      echo "Ubuntu"
+      case $SHELL in
+        *18.0*) DIR="./ubuntu/18" ;;
+        *19.0*) DIR="./ubuntu/19" ;;
+        *20.0*) DIR="./ubuntu/20" ;;
+        *)      DIR="nope"        ;;  
+      esac ;;
+    *Arch\ Linux*)  DIR="arch"    ;;
+    *Mac*)          DIR="mac"     ;;
+    *)              DIR="nope"    ;;
+esac
 
-#Check input parameter
-if [ "$1" != "vim" -a "$1" != "nvim" ]; then
-  echo "Need to specify vim or nvim"
-  exit -1
-fi
+echo "Installing for $DIR"
+cd $DIR
 
-#Install packages
-if [[ $SHELL == *"Ubuntu"* ]]; then
-  sudo apt-get update
-  sudo apt-get install -y vim-gtk neovim silversearcher-ag tmux
-#elif [[ $SHELL= *"Arch Linux"* ]]; then
-#  pacman -Sy
-#  pacman -S --noconfirm vim neovim the_silver_searcher tmux
-else #Mac eh... 
-  brew install the_silver_searcher
-fi
+bash install.sh $1
 
-#MOVE THINGS
-#Vim - Neovim
-if [ ! -d ~/.vim ]; then 
-  mkdir ~/.vim
-fi
-if [ ! -d ~/.config/nvim ]; then
-  mkdir -p ~/.config/nvim
-fi
-$MV vimrc* ~/.vim/
-echo "set runtimepath^=~/.vim runtimepath+=~/.vim/after" > ~/.config/nvim/init.vim
-echo "let &packpath=&runtimepath" >> ~/.config/nvim/init.vim
-echo "source ~/.vim/vimrc" >> ~/.config/nvim/init.vim
+echo "Finished"
 
-python3 -m pip install --user pynvim
+exit 0
 
-#Intall vim-plug and plugins
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-$VIM +PlugInstall +qall
-
-if [ $VIM == "nvim" ]; then
-  #Create alias for vim
-  echo "alias vim=nvim" >> ~/.bashrc
-fi
-
-#Tmux
-$MV tmux.conf ~/.tmux.conf
