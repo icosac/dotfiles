@@ -35,7 +35,8 @@ fi
 echo -e "${BLUE}Installing packages"
 if in_list "${packages[@]}" "neovim"; then
   echo -e "${GREEN}Intalling neovim from source$NC"
-  $IN build-essential install make automake cmake pkg-config libtool libtool-bin gettext
+  $IN build-essential make automake cmake pkg-config libtool libtool-bin gettext
+  if [ -d neovim ]; then rm -rf neovim; fi
   git clone -b stable https://github.com/neovim/neovim
   cd neovim 
   make CMAKE_BUILD_TYPE=Release -j
@@ -59,14 +60,18 @@ $IN ${packages[*]}
 echo -e "${BLUE}Moving configuration files${NC}"
 
 #VIM
-echo -e "${GREEN}Configuring vim${NC}"
-if [ ! -d ~/.vim ]; then
-  $MKDIR ~/.vim
+if in_list "${packages[@]}" "vim"; then
+  echo -e "${GREEN}Configuring vim${NC}"
+  if [ ! -d ~/.vim ]; then
+    $MKDIR ~/.vim
+  fi
+  MV $MOVE "./vim/vimrc*" "~/.vim"
+  python3 -m pip install --user pynvim
+  curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  vim +PlugInstall +qa
 fi
-MV $MOVE "./vim/vimrc*" "~/.vim"
-python3 -m pip install --user pynvim
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-vim +PlugInstall +qa
 
 #TMUX
-MV $MOVE "./tmux/tmux.conf" "~/.tmux.conf"
+if in_list "${packages[@]}" "tmux"; then
+  MV $MOVE "${PWD}/tmux/tmux.conf" "~/.tmux.conf"
+fi
