@@ -6,7 +6,7 @@ GREEN="\033[0;32m"
 
 function MV {
   echo -e "\t$1 $2 $3"
-  #$1 $2 $3
+  $1 $2 $3
 }
 
 function check_array {
