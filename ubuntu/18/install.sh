@@ -47,7 +47,7 @@ if in_list "${packages[*]}" "neovim"; then
   cd neovim 
   make CMAKE_BUILD_TYPE=Release -j
   if [ $(whoami) == "root" ]; then make install; else sudo make install; fi
-  #NEOVIM
+  cd $CD
   echo -e "${GREEN}Configuring neovim${NC}"
   echo -e "\tFirst configuring vim"
   if [ ! -d $HOME/.vim ]; then
@@ -59,7 +59,7 @@ if in_list "${packages[*]}" "neovim"; then
   #Move first plugins
   echo -e "if filereadable(expand(\"~/.vim/vimrc.plug\"))\nsource ~/.vim/vimrc.plug\nendif" > $HOME/.vim/vimrc
   MV $MOVE "./vim/vimrc.plug" "$HOME/.vim/vimrc.plug"
-  MV $MOVE "./neovim/init.vim" "$HOME/.config/nvim/init.vim"
+  MV $MOVE "./nvim/init.vim" "$HOME/.config/nvim/init.vim"
   curl -fLo $HOME/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   #Install plugin and move correct configuration file
   nvim +PlugInstall +qa
