@@ -41,7 +41,7 @@ fi
 if in_list "${packages[*]}" "neovim"; then
   echo -e "${BLUE}NEOVIM${NC}"
   echo -e "${GREEN}Intalling neovim from source$NC"
-  $IN build-essential make automake cmake pkg-config libtool libtool-bin gettext
+  $IN build-essential make automake cmake pkg-config libtool libtool-bin gettext unzip
   if [ -d neovim ]; then rm -rf neovim; fi
   $CLONE -b stable https://github.com/neovim/neovim
   cd neovim 
