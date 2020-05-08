@@ -70,7 +70,7 @@ fi
 if in_list "${packages[*]}" "vim"; then
   echo -e "${BLUE}VIM${NC}"
   echo -e "${GREEN}Installing vim${NC}"
-  $IN vim-gtk python3-pip silversearcher-ag
+  $IN vim-gtk python3-pip #silversearcher-ag
   python3 -m pip install --user pynvim
   echo -e "${GREEN}Configuring vim${NC}"
   if [ ! -d $HOME/.vim ]; then

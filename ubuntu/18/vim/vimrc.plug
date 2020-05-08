@@ -24,7 +24,7 @@ Plug 'itchyny/lightline.vim'
 
 "WORD SEARCH
 Plug 'kien/ctrlp.vim'
-Plug 'numkil/ag.nvim'
+"Plug 'numkil/ag.nvim'
 
 "SNIPPETS
 Plug 'SirVer/ultisnips'
