@@ -54,6 +54,9 @@ inoremap <C-BS> <C-\><C-o>db
 " Map Ctrl-Del to delete next word in insert mode
 imap <C-Del> <C-o>dw
 
+" Map Ctrl-P to paste word 
+imap <C-P> <C-\><C-o>p
+
 if filereadable(expand("~/.vim/vimrc.plug"))
 	source ~/.vim/vimrc.plug
 endif
