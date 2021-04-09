@@ -20,7 +20,7 @@ function check_input {
     ret=0
     for el in "${LIST[@]}"; do
       if [ $pkg == $el ]; then
-        ret=$(( $ret | 1 ))
+        ret=$(( $ret | 1 )) #Ok man, this is cool, but probably useless 
       fi
     done
     if [ $ret == 0 ]; then
