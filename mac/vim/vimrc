@@ -28,6 +28,10 @@ set number
 
 set clipboard+=unnamedplus
 
+if has("gui_macvim")
+  set guifont=Menlo-Regular:h14
+endif
+
 if has('persistent_undo')      "check if your vim version supports it
   silent !mkdir -p $HOME/.vim/undo
   set undofile                 "turn on the feature  
