@@ -2,12 +2,12 @@ CD=$(pwd)
 source "${CD}/../utils.sh"
 echo "Moved in $CD"
 
-LIST=(brew neovim vim macvim tmux) #List of all possible packets to install
+LIST=(brew neovim vim macvim tmux cron) #List of all possible packets to install
 
 #If no package was given in input, ask which to install
 if [ "$1" == "" ]; then
   echo "Possible packages for Mac are: ${LIST[*]}"
-  echo "Note: vim will only set the configuration file, if you want to install from Homebrew add vim_in to the list, but please do not."
+  echo "Note:\n-vim will only set the configuration file, if you want to install from Homebrew add vim_in to the list;\n-cron will only set the crontab rules.\nPlease do not run vim-in."
   read -e -r -p "Insert packages names or \`all\` for to install all packages: " string
   if [ "$string" == "all" ]; then
     packages=("${LIST[*]}")
@@ -120,3 +120,11 @@ if in_list "${packages[*]}" "tmux"; then
   echo -e "${GREEN}Configuring tmux.${NC}"
   MV $MOVE "${PWD}/tmux/tmux.conf" "$HOME/.tmux.conf"
 fi
+
+#CRONTAB
+if in_list "${pakages[*]}" "cron"; then
+  echo -e "${BLUE}CRONTAB${NC}"
+  echo -e "${GREEN}Configuring crontab${NC}"
+  cat cron/cron | crontab
+
+fi 
