@@ -7,8 +7,7 @@ Plug 'scrooloose/nerdtree'
 
 "AUTOCOMPLETION
 Plug 'ervandew/supertab' "To allow the usage of tab for ultisnips with YouCompleteMe enabled
-"Plug 'ervandew/supertab' "To allow the usage of tab for ultisnips with YouCompleteMe enabled
-""Plug 'Valloric/YouCompleteMe', {'do' : 'python3 install.py --clangd-completer'}
+" Plug 'Valloric/YouCompleteMe', {'do' : 'python3 install.py --clangd-completer'}
 if has('nvim')
   Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 else
