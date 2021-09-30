@@ -1,8 +1,7 @@
-filetype off
+"filetype off
 filetype plugin indent on
 
 syntax on
-"?? set modelines=0
 set wrap
 set spell 
 
@@ -26,7 +25,7 @@ set laststatus=2 "Set status bar always on
 
 set number
 
-set clipboard+=unnamedplus
+set clipboard+=unnamed
 
 if has("gui_macvim")
   set guifont=Menlo-Regular:h14
@@ -74,10 +73,6 @@ augroup END
 colorscheme gruvbox
 set background=dark
 
-"autocmd BufRead *.tex 
-"autocmd BufRead *.tex set background=light
-"vnoremap <C-b> "hy:%s/<C-b>h//gc<left><left><left>
-
 vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 
 "NerdTree
@@ -90,9 +85,12 @@ nnoremap <silent> <Leader>pv :NERDTreeFind<CR>
 "Deoplete
 set pyxversion=3
 let g:deoplete#enable_at_startup = 1
-call deoplete#custom#option('auto_complete_popup', "manual", "sources:{'python':[jedi]}")
-imap <silent><expr> <C-k> deoplete#complete()
-imap <silent><expr> <C-Space> deoplete#complete()
+call deoplete#custom#option({
+      \'auto_complete_popup':'manual',
+      \'sources':{
+        \'python':['jedi']}
+      \})
+imap <silent><expr> <C-space> deoplete#complete()
 
 "YouCompleteMe
 nnoremap <silent> <Leader>gd :YcmCompleter GoTo<CR>
@@ -113,10 +111,10 @@ let g:ycm_key_list_select_completion = []
 let g:ycm_key_list_previous_completion = []
 let g:SuperTabDefaultCompletionType = 0 
 " better key bindings for UltiSnipsExpandTrigger
-let g:UltiSnipsExpandTrigger = '<c-j>'
+let g:UltiSnipsExpandTrigger = '<C-j>'
+let g:UltiSnipsListSnippets = '<C-l>'
 let g:UltiSnipsJumpForwardTrigger = '<tab>'
-let g:UltiSnipsJumpBackwardTrigger = '<c-k>'
-let g:UltiSnipsListSnippets="<c-l>"
+let g:UltiSnipsJumpBackwardTrigger = '<S-tab>'
 
 " ag items.  I need the silent ag.
 if executable('ag')
