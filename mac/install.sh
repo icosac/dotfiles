@@ -2,7 +2,7 @@ CD=$(pwd)
 source "${CD}/../utils.sh"
 echo "Moved in $CD"
 
-LIST=(brew neovim vim macvim tmux cron) #List of all possible packets to install
+LIST=(brew neovim vim macvim tmux cron iterm2) #List of all possible packets to install
 
 #If no package was given in input, ask which to install
 if [ "$1" == "" ]; then
@@ -126,5 +126,12 @@ if in_list "${pakages[*]}" "cron"; then
   echo -e "${BLUE}CRONTAB${NC}"
   echo -e "${GREEN}Configuring crontab${NC}"
   cat cron/cron | crontab
-
 fi 
+
+#ITERM2
+if in_list "${packages[*]}" "iterm2"; then
+  echo -e "${BLUE}iTerm2${NC}"
+  echo -e "${GREEN}Installing iTerm2${NC}"
+  brew install --cask iterm2
+fi
+  
