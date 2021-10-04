@@ -1,1 +1,2 @@
-@reboot /bin/bash -c "(brew update && brew upgrade)"
+@reboot /bin/bash -c "(/usr/local/bin/brew update && /usr/local/bin/brew upgrade)" &> $HOME/Desktop/crontab_brew_exec.txt
+0 20 * * * /bin/bash -c "(/usr/local/bin/brew update && /usr/local/bin/brew upgrade)" &> $HOME/Desktop/crontab_brew_exec.txt
