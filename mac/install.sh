@@ -2,7 +2,7 @@ CD=$(pwd)
 source "${CD}/../utils.sh"
 echo "Moved in $CD"
 
-LIST=(brew neovim vim macvim tmux cron iterm2) #List of all possible packets to install
+LIST=(brew neovim vim macvim tmux cron iterm2 zsh) #List of all possible packets to install
 
 #If no package was given in input, ask which to install
 if [ "$1" == "" ]; then
@@ -60,7 +60,7 @@ if in_list "${packages[*]}" "neovim"; then
   if [ ! -d $HOME/.config/nvim ]; then
     $MKDIR $HOME/.config/nvim
   fi
-  #Move first plugins
+  #First move the iplugins
   echo -e "if filereadable(expand(\"~/.vim/vimrc.plug\"))\nsource ~/.vim/vimrc.plug\nendif" > $HOME/.vim/vimrc
   MV $MOVE "./vim/vimrc.plug" "$HOME/.vim/vimrc.plug"
   MV $MOVE "./nvim/init.vim" "$HOME/.config/nvim/init.vim"
@@ -135,3 +135,47 @@ if in_list "${packages[*]}" "iterm2"; then
   brew install --cask iterm2
 fi
   
+#ZSH -- String with changes to .zshrc
+ZSH_RC="
+#EXPORTS
+export LANG=en_US.UTF-8
+export PATH=$PATH:/Users/enrico/Library/Python/3.8/bin:/Users/enrico/Library/Python/3.9/bin
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='nvim'
+else
+  export EDITOR='nvim'
+fi
+export PATH=/usr/local/opt/bison/bin:$PATH
+export LDFLAGS=-L/usr/local/opt/bison/lib
+
+#Function to open macvim on a file. Uses touch to create file if it doesn't already exists.
+function macvimFun (){
+  touch $1
+  open -a MacVim $1
+}
+
+#ALIASES 
+alias subl=\"open -a Sublime\ Text \"
+alias preview=\"open -a /System/Applications/Preview.app \"
+alias macvim=macvimFun 
+alias upgrade_oh_my_zsh=\"omz update\"
+"
+if in_list "${packages[*]}" "zsh"; then
+  echo -e "${BLUE}ZSH${NC}"
+  echo -e "${GREEN}Check if ZSH is already installed in the system${NC}"
+  if ! command -v zsh &> /dev/null
+    echo -e "${GREEN}ZSH not present, installing ZSH via brew${NC}"
+    if ! command -v brew &> /dev/null
+      echo -e "${RED}Brew not installed, cannot continue${NC}"
+    else 
+      brew install zsh
+    fi
+  fi
+  if ! command -v zsh &> /dev/null
+    echo -e "${GREEN}Installing Oh My ZSH${NC}"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    echo ${ZSH_RC} >> $HOME/.zshrc
+  else
+    echo -e "${RED}Cannot install Oh My ZSH, error occurred${NC}"
+  fi
+fi
