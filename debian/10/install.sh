@@ -1,13 +1,13 @@
 #!/bin/bash
 CD=$(pwd)
 source "${CD}/../../utils.sh"
-echo "Moved in $CD"
+echo "Moved in ${CD}"
 
-LIST=(neovim vim tmux) #List of all possible packets to install
+LIST=(neovim vim tmux zsh) #List of all possible packets to install
 
 #If no package was given in input, ask which to install
 if [ "$1" == "" ]; then
-  echo "Possible packages for Ubuntu are: ${LIST[*]}"
+  echo "Possible packages for Debian 10 are: ${LIST[*]}"
   read -e -r -p "Insert packages names or \`all\` for to install all packages: " string
   if [ "$string" == "all" ]; then
     packages=("${LIST[*]}")
@@ -39,7 +39,6 @@ fi
 
 #Install general packages
 $IN curl
-
 
 #Install packages
 #NEOVIM
@@ -97,4 +96,34 @@ if in_list "${packages[*]}" "tmux"; then
   rm -rf tmux-mem-cpu-load
   echo -e "${GREEN}Configuring tmux.${NC}"
   MV $MOVE "${PWD}/tmux/tmux.conf" "$HOME/.tmux.conf"
+fi
+
+#ZSH -- String with changes to .zshrc
+ZSH_RC="
+#EXPORTS
+export LANG=en_US.UTF-8
+if [[ -n \$SSH_CONNECTION ]]; then
+  export EDITOR='nvim'
+else
+  export EDITOR='nvim'
+fi
+
+#ALIASES 
+alias upgrade_oh_my_zsh=\"omz update\"
+"
+#OH-MY-ZSH
+if in_list "${packages[*]}" "zsh"; then
+  ZSH_RC_FILE="${HOME}/.zshrc"
+  echo ${ZSH_RC_FILE}
+
+  echo -e "${BLUE}ZSH${NC}"
+  echo -e "${GREEN}Installing zsh from repos${NC}"
+  $IN zsh
+  echo -e "${GREEN}Installing oh-my-zsh${NC}"
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+  echo -e "${GREEN}Changing default theme${NC}"
+  echo -e "${BLUE}Beginning${NC}"
+  sed -i.bak 's/ZSH_THEME=\"robbyrussell\"/ZSH_THEME=\"bira\"/' ${ZSH_RC_FILE}
+  echo -e "${ZSH_RC}" >> ${ZSH_RC_FILE}
+  echo -e "${GREEN}Changing shell{$NC}"
 fi

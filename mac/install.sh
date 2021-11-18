@@ -174,7 +174,7 @@ if in_list "${packages[*]}" "zsh"; then
   if ! command -v zsh &> /dev/null
     echo -e "${GREEN}Installing Oh My ZSH${NC}"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-    echo ${ZSH_RC} >> $HOME/.zshrc
+    echo "${ZSH_RC}" >> ${HOME}/.zshrc
   else
     echo -e "${RED}Cannot install Oh My ZSH, error occurred${NC}"
   fi
