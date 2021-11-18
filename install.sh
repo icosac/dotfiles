@@ -17,10 +17,15 @@ else
           *20.0*) DIR="./ubuntu/20" ;;
           *)      DIR="nope"        ;;  
         esac ;;
+      *Debian*)
+	echo "Debian"
+	case $SHELL in 
+	  *10.0*) DIR="./debian/10" ;; 
+	  *)      DIR="nope"        ;;
+        esac ;;
       *Arch\ Linux*)  DIR="./arch"  ;;
       *)              DIR="nope"    ;;
   esac
-
 fi
 
 echo "Installing for $DIR"
