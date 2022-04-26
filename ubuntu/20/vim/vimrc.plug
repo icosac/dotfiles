@@ -1,0 +1,42 @@
+call plug#begin('~/.vim/plugged')
+
+Plug 'tpope/vim-fugitive'
+Plug 'vim-scripts/vis'
+Plug 'scrooloose/nerdtree'
+
+
+"AUTOCOMPLETION
+Plug 'ervandew/supertab' "To allow the usage of tab for ultisnips with YouCompleteMe enabled
+"Plug 'ervandew/supertab' "To allow the usage of tab for ultisnips with YouCompleteMe enabled
+""Plug 'Valloric/YouCompleteMe', {'do' : 'python3 install.py --clangd-completer'}
+if has('nvim')
+  Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+else
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
+  Plug 'Shougo/deoplete.nvim'
+endif
+Plug 'deoplete-plugins/deoplete-jedi'
+
+"COLOR-SCHEME
+Plug 'morhetz/gruvbox'
+Plug 'itchyny/lightline.vim'
+
+"WORD SEARCH
+Plug 'kien/ctrlp.vim'
+"Plug 'numkil/ag.nvim'
+
+"SNIPPETS
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+
+"LATEX
+Plug 'lervag/vimtex'
+"Plug 'vim-latex/vim-latex' "Install also 'xuhdev/vim-latex-live-preview' for continuous integration
+"Plug 'xuhdev/vim-latex-live-preview', { 'for': 'tex' }
+
+"MARKDOWN
+Plug 'plasticboy/vim-markdown'
+Plug 'shime/vim-livedown'
+
+call plug#end()
