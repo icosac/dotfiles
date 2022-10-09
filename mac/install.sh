@@ -35,6 +35,12 @@ echo "Updating system"
 #Check if Homebrew installed. If it is, update the system, otherwise update the list if not present
 if command -v brew &> /dev/null; then
   brew update
+  for (( i=0; i<${#packages[@]}; i++ )); do 
+    if [[ ${packages[i]} == brew ]]; then
+      packages=( "${packages[@]:0:$i}" "${packages[@]:$((i + 1))}" )
+      i=$((i - 1))
+    fi
+  done
 else
   if ! in_list "${packages[*]}" "brew"; then
     packages+=("brew")
@@ -43,7 +49,8 @@ fi
 
 #Install packages
 #Homebrew
-if ! in_list "${packages[*]}" "brew"; then
+if in_list "${packages[*]}" "brew"; then
+  echo -e "${BLUE}BREW${NC}"
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
@@ -163,15 +170,15 @@ alias upgrade_oh_my_zsh=\"omz update\"
 if in_list "${packages[*]}" "zsh"; then
   echo -e "${BLUE}ZSH${NC}"
   echo -e "${GREEN}Check if ZSH is already installed in the system${NC}"
-  if ! command -v zsh &> /dev/null
+  if ! command -v zsh &> /dev/null; then
     echo -e "${GREEN}ZSH not present, installing ZSH via brew${NC}"
-    if ! command -v brew &> /dev/null
+    if ! command -v brew &> /dev/null; then
       echo -e "${RED}Brew not installed, cannot continue${NC}"
     else 
       brew install zsh
     fi
   fi
-  if ! command -v zsh &> /dev/null
+  if command -v zsh &> /dev/null; then
     echo -e "${GREEN}Installing Oh My ZSH${NC}"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     echo "${ZSH_RC}" >> ${HOME}/.zshrc
