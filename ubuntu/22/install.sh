@@ -10,7 +10,8 @@ LIST=(\
   tmux\
   zsh\
   git\
-  docker
+  docker\
+  latex
 ) 
 
 #If no package was given in input, ask which to install
@@ -44,18 +45,35 @@ else
   sudo apt-get update
   IN="sudo apt-get install -y "
 fi
+DEP="xarg $IN < "
 
 #Install packages
+
+#LATEX
+if in_list "${packages[*]}" "latex"; then
+  echo -e "${BLUE}Latex${NC}"
+  $DEP apt-req/latex.txt
+  python3 -m pip install -U -r pip-req/latex.txt
+  $IN texlive-base texlive-plain-generic texlive-latex-recommended texlive-latex-extra texlive-science texlive-luatex
+  $MOVE latexmkrc ~/.latexmkrc
+  if ! command -v pygmentize; then
+    if [[ $SHELL =~ "zsh" ]]; then 
+      echo "export PATH=\"\${PATH}:/home/$USER/.local/bin\"" >> ~/.vzshrc 
+    elif [[ $SHELL =~ "bash" ]]; then 
+      echo "export PATH=\"\${PATH}:/home/$USER/.local/bin\"" >> ~/.vbashrc 
+    fi
+  fi
+fi
 
 #DOCKER
 if in_list "${packages[*]}" "docker"; then
   echo -e "${BLUE}Docker${NC}"
-  $IN apt-transport-https curl gnupg-agent ca-certificates software-properties-common
+  $DEP apt-req/docker.txt 
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   sudo apt update
   $IN docker-ce docker-ce-cli containerd.io docker-compose-plugin
-  echo -e "${GREEN}Running Docker post-installation steps{NC}"
+  echo -e "${GREEN}Running Docker post-installation steps${NC}"
   if [ "$( whoami )" != "root" ]; then
     if [ ! $(getent group docker) ]; then
       sudo groupadd docker
@@ -73,17 +91,18 @@ fi
 #OH MY ZSH
 if in_list "${packages[*]}" "zsh"; then
   echo -e "${BLUE}Oh My Zsh${NC}"
-  $IN curl wget zsh git
+  $DEP apt-req/zsh.txt
+  $IN git
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-  sed -i "s/robbyrussel/bira/g" ~/.zshrc 
+  sed -i "s/robbyrussell/bira/g" ~/.zshrc 
 fi
   
 #NEOVIM
 if in_list "${packages[*]}" "neovim"; then
   echo -e "${BLUE}NEOVIM${NC}"
-  echo -e "${GREEN}Intalling neovim from source$NC"
-  $IN curl build-essential make automake cmake pkg-config libtool libtool-bin python3 python3-pip gettext unzip latexmk &> /dev/null
-  python3 -m pip install -U neovim
+  echo -e "${GREEN}Intalling neovim from repositories$NC"
+  $DEP apt-req/neovim.txt
+  python3 -m pip install -U -r pip-req/neovim.txt
   $IN neovim
   echo -e "${GREEN}Configuring neovim${NC}"
   echo -e "\tFirst configuring vim"

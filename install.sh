@@ -7,24 +7,26 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 
 else
 
-  SHELL=$(cat /proc/version)
-  case $SHELL in
-      *Ubuntu*)
-        echo "Ubuntu"
-        case $SHELL in
-          *18.0*) DIR="./ubuntu/18" ;;
-          *19.0*) DIR="./ubuntu/19" ;;
-          *20.0*) DIR="./ubuntu/20" ;;
-          *)      DIR="nope"        ;;  
-        esac ;;
-      *Debian*)
-	echo "Debian"
-	case $SHELL in 
-	  *10.0*) DIR="./debian/10" ;; 
-	  *)      DIR="nope"        ;;
-        esac ;;
-      *Arch\ Linux*)  DIR="./arch"  ;;
-      *)              DIR="nope"    ;;
+  OS=$(cat /proc/version)
+  case $OS in
+    *Ubuntu*)
+      echo "Ubuntu"
+      OS=$(lsb_release -r)
+      case $OS in
+        *18.*) DIR="./ubuntu/18" ;;
+        *19.*) DIR="./ubuntu/19" ;;
+        *20.*) DIR="./ubuntu/20" ;;
+        *22.*) DIR="./ubuntu/22" ;;
+        *)      DIR="nope"        ;;  
+      esac ;;
+    *Debian*)
+	    echo "Debian"
+      case $OS in 
+        *10.0*) DIR="./debian/10" ;; 
+        *)      DIR="nope"        ;;
+      esac ;;
+    *Arch\ Linux*)  DIR="./arch"  ;;
+    *)              DIR="nope"    ;;
   esac
 fi
 
