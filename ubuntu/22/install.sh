@@ -18,7 +18,9 @@ LIST=(\
   zsh\
   git\
   docker\
-  latex
+  latex\
+  regolith\
+  code
 ) 
 
 # The script will probably be executed with sudo. 
@@ -29,7 +31,9 @@ else
   real_user=$(whoami)
 fi
 real_home="$(getent passwd ${real_user} 2>/dev/null | cut -d: -f6)"
-echo "Real user: ${real_user} with home ${real_home}"
+real_shell="$(getent passwd "${real_user}" | awk -F: '{print $7}')"
+
+echo "Real user: ${real_user} with home ${real_home} using shell ${real_shell}"
 
 # Define commands
 MK=make
@@ -70,19 +74,29 @@ INFO $BBLUE "Updating system"
 
 # Install packages
 
+# CODE
+# wget https://vscode.download.prss.microsoft.com/dbazure/download/stable/5437499feb04f7a586f677b155b039bc2b3669eb/code_1.90.2-1718751586_amd64.deb -O code.deb
+# sudo dpkg -i code.deb
+# rm code.deb
+
 # LATEX
 if in_list "${packages[*]}" "latex"; then
-  echo -e "${BLUE}Latex${NC}"
-  $DEP apt-req/latex.txt
-  python3 -m pip install -U -r pip-req/latex.txt
-  $IN texlive-base texlive-plain-generic texlive-latex-recommended texlive-latex-extra texlive-science texlive-luatex
-  $MOVE latexmkrc ~/.latexmkrc
-  if ! command -v pygmentize; then
-    if [[ $SHELL =~ "zsh" ]]; then 
-      echo "export PATH=\"\${PATH}:/home/$USER/.local/bin\"" >> ~/.vzshrc 
-    elif [[ $SHELL =~ "bash" ]]; then 
-      echo "export PATH=\"\${PATH}:/home/$USER/.local/bin\"" >> ~/.vbashrc 
+  INFO ${BBLUE} "LATEX"
+  INFO ${GREEN} "Installing apt dependencies"
+  dep "$IN" "apt-req/latex.txt" &> /dev/null
+  INFO ${GREEN} "Installing python3 dependencies"
+  sudo -u ${real_user} python3 -m pip install -U -r pip-req/latex.txt &> /dev/null
+  INFO ${GREEN} "Installing main packages"
+  $IN texlive-base texlive-plain-generic texlive-latex-recommended texlive-latex-extra texlive-science texlive-luatex &> /dev/null 
+  INFO ${GREEN} "Configuring"
+  $MOVE latexmkrc ${real_home}/.latexmkrc
 
+  command -v pygmentize &> /dev/null
+  if [ $? -ne 0 ]; then
+    if [[ "${real_shell}" == *"zsh" ]]; then 
+      echo -e "# Python3 PIP packages\nexport PATH=\"\${PATH}:${real_home}/.local/bin\"" >> "${real_home}/.zshrc"
+    elif [[ "${real_shell}" == *"bash" ]]; then 
+      echo -e "# Python3 PIP packages\nexport PATH=\"\${PATH}:${real_home}/.local/bin\"" >> "${real_home}/.bashrc"
     fi
   fi
 fi
@@ -112,7 +126,6 @@ fi
 if in_list "${packages[*]}" "git"; then  
   $INFO ${BBLUE} "GIT"
   $IN git
-
   read -t 5 -p "If you want to take control and generate passkeys, write y in 5 seconds [y/N] " choice
   if [ $? -eq 0 ] && { [ "${choice}" = "y" ] || [ "${choice}" = "Y" ]; }; then
     INFO ${GREEN} "ssh dir in ${SSH_DIR}"
@@ -184,31 +197,36 @@ fi
 # NEOVIM
 if in_list "${packages[*]}" "neovim"; then
   INFO ${BBLUE} "NEOVIM"
-  INFO ${GREEN} "Intalling neovim from repositories"
-  $DEP apt-req/neovim.txt
-  python3 -m pip install -U -r pip-req/neovim.txt
-  $IN neovim
-  # echo -e "${GREEN}Configuring neovim${NC}"
-  # echo -e "\tFirst configuring vim"
-  # if [ ! -d $HOME/.vim ]; then
-  #   $MKDIR $HOME/.vim
-  # fi
-  # if [ ! -d $HOME/.config/nvim ]; then
-  #   $MKDIR $HOME/.config/nvim
-  # fi
-  # #Move first plugins
-  # echo -e "if filereadable(expand(\"~/.vim/vimrc.plug\"))\nsource ~/.vim/vimrc.plug\nendif" > $HOME/.vim/vimrc
-  # MV $MOVE "./vim/vimrc.plug" "$HOME/.vim/vimrc.plug"
-  # MV $MOVE "./nvim/init.vim" "$HOME/.config/nvim/init.vim"
-  # curl -fLo $HOME/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  # #Install plugin and move correct configuration file
-  # nvim +PlugInstall +qa
-  # MV $MOVE "./vim/vimrc" "$HOME/.vim/vimrc"
+  INFO ${GREEN} "Cleaning previous installations from /opt/nvim"
+  if [ -d /opt/nvim ]; then
+    sudo rm -rf /opt/nvim
+  fi
+  INFO ${GREEN} "Intalling neovim from Github repository"
+  curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz &> /dev/null
+  sudo tar -C /opt -xzf nvim-linux64.tar.gz &> /dev/null
+  rm nvim-linux64.tar.gz
+  if [[ "${real_shell}" == *"zsh" ]]; then 
+    echo "export PATH=\"$PATH:/opt/nvim-linux64/bin\"" >> "${real_home}/.zshrc"
+  elif [[ "${real_shell}" == *"bash" ]]; then 
+    echo "export PATH=\"$PATH:/opt/nvim-linux64/bin\"" >> "${real_home}/.bashrc"
+  fi
+  INFO ${BGREEN} "neovim installed, resource your shell"
+
+  INFO ${GREEN} "Installing Astronvim"
+  rm -rf ${real_home}/.config/nvim
+  rm -rf ${real_home}/.local/share/nvim
+  rm -rf ${real_home}/.local/state/nvim
+  rm -rf ${real_home}/.cache/nvim
+  sudo -u ${real_user} mkdir -p ${real_home}/.config/nvim-profiles/
+  sudo -u ${real_user} git clone --depth 1 https://github.com/AstroNvim/template ${real_home}/.config/nvim-profiles/astronvim &> /dev/null
+  sudo -u ${real_user} rm -rf ${real_home}/.config/nvim-profiles/astronvim/.git
+  sudo chown -R ${real_user}:${real_user} ${real_home}/.config/nvim-profiles
+  sudo -u "${real_user}" bash -c 'NVIM_APPNAME=nvim-profiles/astronvim /opt/nvim-linux64/bin/nvim +qall'
 fi
 
 # VIM
 if in_list "${packages[*]}" "vim"; then
-  echo -e "${BLUE}VIM${NC}"
+  echo -e "${BRED}VIM (DEPRECATED)${NC}"
   echo -e "${GREEN}Installing vim${NC}"
   $IN vim-gtk python3-pip #silversearcher-ag
   python3 -m pip install --user pynvim

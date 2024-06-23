@@ -7,4 +7,4 @@ The problem is that I don't have time to install-remove-reinstall the software t
 
 ## ROS2
 
-To install ROS2 for Ubuntu, I rely on [this repo](https://github.com/Tiryoh/ros2_setup_scripts_ubuntu).
+To install ROS2 for Ubuntu, I rely on [this repo](https://github.com/Tiryoh/ros2_setup_scripts_ubuntu). Run the script from a normal user.
