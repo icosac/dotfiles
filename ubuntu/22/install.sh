@@ -66,7 +66,7 @@ INFO $BGREEN "About to install packages: ${packages[*]}"
 
 # Update system before starting
 INFO $BBLUE "Updating system"
-$UPDATE &> /dev/null
+# $UPDATE &> /dev/null
 
 #Install packages
 
@@ -82,6 +82,7 @@ if in_list "${packages[*]}" "latex"; then
       echo "export PATH=\"\${PATH}:/home/$USER/.local/bin\"" >> ~/.vzshrc 
     elif [[ $SHELL =~ "bash" ]]; then 
       echo "export PATH=\"\${PATH}:/home/$USER/.local/bin\"" >> ~/.vbashrc 
+
     fi
   fi
 fi
@@ -105,8 +106,47 @@ if in_list "${packages[*]}" "docker"; then
 fi
 
 #GIT
-if in_list "${package[*]}" "git"; then
+if in_list "${packages[*]}" "git"; then  
+  $INFO ${BBLUE} "Git"
   $IN git
+
+  read -t 5 -p "If you want to take control and generate passkeys, write y in 5 seconds [y/N] " choice
+  if [ $? -eq 0 ] && { [ "${choice}" = "y" ] || [ "${choice}" = "Y" ]; }; then
+    INFO ${GREEN} "ssh dir in ${SSH_DIR}"
+    SSH_DIR=${real_home}/.ssh
+    if [ ! -d $SSH_DIR ]; then
+      mkdir -p $SSH_DIR
+      chown ${real_user}:${real_user} $SSH_DIR 
+      chmod 700 $SSH_DIR
+    fi
+    INFO ${GREEN} "Installing additional dependencies"
+    # dep "${IN} "apt-req/git.txt"
+    INFO ${GREEN} "Asking for passkeys"
+
+    GIT_HOSTS=(github gitlab bitbucket)
+    for GIT_HOST in "${GIT_HOSTS[@]}"; do
+      choice="no"
+      read -p "Do you want to create a passkey for $GIT_HOST? [y/N] " choice
+      if [ "${choice}" = "y" ] || [ "${choice}" = "Y" ]; then
+	# Create key
+        ssh-keygen -t rsa  -f $SSH_DIR/$GIT_HOST
+	# Change comment from root@$HOSTNAME
+	ssh-keygen -c -C "${real_user}@$HOSTNAME" -f $SSH_DIR/$GIT_HOST
+        chown $real_user:$real_user $SSH_DIR/$GIT_HOST*
+        chmod 644 $SSH_DIR/$GIT_HOST.pub
+        chmod 600 $SSH_DIR/$GIT_HOST
+	echo -e "\nHost ${GIT_HOST}_dotfile\n  HostName ${GIT_HOST}.com\n  IdentityFile ${SSH_DIR}/${GIT_HOST}\n  IdentitiesOnly yes\n" >> $SSH_DIR/config
+	sed -i "s/ root@/ ${real_user}@/g" $SSH_DIR/config
+	if [ "$GIT_HOST" == "bitbucket" ]; then
+	  sed -i "s/bitbucket.com/bitbucket.org/g" $SSH_DIR/config
+	fi
+      fi
+    done
+    INFO ${GREEN} "The script will now continue without interruptions"
+  else
+    echo -e "\n"
+  fi
+  INFO ${BLUE} "Git installed"
 fi
 
 #OH MY ZSH
