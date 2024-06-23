@@ -68,9 +68,9 @@ INFO $BGREEN "About to install packages: ${packages[*]}"
 INFO $BBLUE "Updating system"
 # $UPDATE &> /dev/null
 
-#Install packages
+# Install packages
 
-#LATEX
+# LATEX
 if in_list "${packages[*]}" "latex"; then
   echo -e "${BLUE}Latex${NC}"
   $DEP apt-req/latex.txt
@@ -87,27 +87,30 @@ if in_list "${packages[*]}" "latex"; then
   fi
 fi
 
-#DOCKER
+# DOCKER
 if in_list "${packages[*]}" "docker"; then
-  echo -e "${BLUE}Docker${NC}"
-  $DEP apt-req/docker.txt 
+  INFO ${BBLUE} "DOCKER"
+  INFO ${GREEN} "Installing dependencies"
+  dep "${IN}" "apt-req/docker.txt" &> /dev/null
+  INFO ${GREEN} "Adding keys and repos"
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-  sudo apt update
-  $IN docker-ce docker-ce-cli containerd.io docker-compose-plugin
-  echo -e "${GREEN}Running Docker post-installation steps${NC}"
-  if [ "$( whoami )" != "root" ]; then
-    if [ ! $(getent group docker) ]; then
-      sudo groupadd docker
-    fi
-    sudo usermod -aG docker $USER
-    newgrp docker
+  $UPDATE &> /dev/null
+  INFO ${GREEN} "Installing docker packages"
+  $IN docker-ce docker-ce-cli containerd.io docker-compose-plugin &> /dev/null
+  INFO ${GREEN} "Running Docker post-installation steps"
+  if [ ! $(getent group docker) ]; then
+    echo "docker group does not exist, creating"
+    sudo groupadd docker
   fi
+  echo "Adding user ${real_user} to docker group"
+  sudo usermod -aG docker ${real_user}
+  sudo -u ${real_user} newgrp docker
 fi
 
-#GIT
+# GIT
 if in_list "${packages[*]}" "git"; then  
-  $INFO ${BBLUE} "Git"
+  $INFO ${BBLUE} "GIT"
   $IN git
 
   read -t 5 -p "If you want to take control and generate passkeys, write y in 5 seconds [y/N] " choice
@@ -149,9 +152,9 @@ if in_list "${packages[*]}" "git"; then
   INFO ${BLUE} "Git installed"
 fi
 
-#OH MY ZSH
+# OH MY ZSH
 if in_list "${packages[*]}" "zsh"; then
-  INFO ${BBLUE} "Oh My Zsh"
+  INFO ${BBLUE} "OH MY ZSH"
   INFO ${GREEN} "Installing dependencies"
   dep "${IN}" "apt-req/zsh.txt" &> /dev/null
   if [ $? -eq 0 ]; then
@@ -167,33 +170,43 @@ if in_list "${packages[*]}" "zsh"; then
     ERROR "Could not install dependencies"
   fi
 fi
+
+# REGOLITH
+if in_list "${packages[*]}" "zsh"; then
+  wget -qO - https://regolith-desktop.org/regolith.key | \
+  gpg --dearmor | sudo tee /usr/share/keyrings/regolith-archive-keyring.gpg > /dev/null
+  echo deb "[arch=amd64 signed-by=/usr/share/keyrings/regolith-archive-keyring.gpg] https://regolith-desktop.org/release-3_1-ubuntu-jammy-amd64 jammy main" | \
+  sudo tee /etc/apt/sources.list.d/regolith.list
+  $UPDATE &> /dev/null
+  $IN regolith-desktop regolith-session-flashback regolith-look-lascaille &> /dev/null
+fi
   
-#NEOVIM
+# NEOVIM
 if in_list "${packages[*]}" "neovim"; then
-  echo -e "${BLUE}NEOVIM${NC}"
-  echo -e "${GREEN}Intalling neovim from repositories$NC"
+  INFO ${BBLUE} "NEOVIM"
+  INFO ${GREEN} "Intalling neovim from repositories"
   $DEP apt-req/neovim.txt
   python3 -m pip install -U -r pip-req/neovim.txt
   $IN neovim
-  echo -e "${GREEN}Configuring neovim${NC}"
-  echo -e "\tFirst configuring vim"
-  if [ ! -d $HOME/.vim ]; then
-    $MKDIR $HOME/.vim
-  fi
-  if [ ! -d $HOME/.config/nvim ]; then
-    $MKDIR $HOME/.config/nvim
-  fi
-  #Move first plugins
-  echo -e "if filereadable(expand(\"~/.vim/vimrc.plug\"))\nsource ~/.vim/vimrc.plug\nendif" > $HOME/.vim/vimrc
-  MV $MOVE "./vim/vimrc.plug" "$HOME/.vim/vimrc.plug"
-  MV $MOVE "./nvim/init.vim" "$HOME/.config/nvim/init.vim"
-  curl -fLo $HOME/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  #Install plugin and move correct configuration file
-  nvim +PlugInstall +qa
-  MV $MOVE "./vim/vimrc" "$HOME/.vim/vimrc"
+  # echo -e "${GREEN}Configuring neovim${NC}"
+  # echo -e "\tFirst configuring vim"
+  # if [ ! -d $HOME/.vim ]; then
+  #   $MKDIR $HOME/.vim
+  # fi
+  # if [ ! -d $HOME/.config/nvim ]; then
+  #   $MKDIR $HOME/.config/nvim
+  # fi
+  # #Move first plugins
+  # echo -e "if filereadable(expand(\"~/.vim/vimrc.plug\"))\nsource ~/.vim/vimrc.plug\nendif" > $HOME/.vim/vimrc
+  # MV $MOVE "./vim/vimrc.plug" "$HOME/.vim/vimrc.plug"
+  # MV $MOVE "./nvim/init.vim" "$HOME/.config/nvim/init.vim"
+  # curl -fLo $HOME/.local/share/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  # #Install plugin and move correct configuration file
+  # nvim +PlugInstall +qa
+  # MV $MOVE "./vim/vimrc" "$HOME/.vim/vimrc"
 fi
 
-#VIM
+# VIM
 if in_list "${packages[*]}" "vim"; then
   echo -e "${BLUE}VIM${NC}"
   echo -e "${GREEN}Installing vim${NC}"

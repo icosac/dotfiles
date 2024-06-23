@@ -1,0 +1,3 @@
+[submodule "ubuntu/ros2_install"]
+	path = ubuntu/ros2_install
+	url = git@github.com:Tiryoh/ros2_setup_scripts_ubuntu.git
