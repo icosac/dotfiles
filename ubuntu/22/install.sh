@@ -3,6 +3,13 @@ CD=$(pwd)
 source "${CD}/../../utils.sh"
 echo "Moved in $CD"
 
+# Disable mouse acceleration
+output=$(gsettings get org.gnome.desktop.peripherals.mouse accel-profile) 
+echo "output ${output}"
+if [ "${output}" != "'flat'" ]; then
+  gsettings set org.gnome.desktop.peripherals.mouse accel-profile 'flat'
+fi
+
 #List of all possible packets to install
 LIST=(\
   neovim\
@@ -14,9 +21,34 @@ LIST=(\
   latex
 ) 
 
-#If no package was given in input, ask which to install
+# The script will probably be executed with sudo. 
+# This allows for storing the name of the user.
+if [ $SUDO_USER ]; then 
+  real_user=$SUDO_USER
+else
+  real_user=$(whoami)
+fi
+real_home="$(getent passwd ${real_user} 2>/dev/null | cut -d: -f6)"
+echo "Real user: ${real_user} with home ${real_home}"
+
+# Define commands
+MK=make
+CLONE="git clone"
+MOVE=cp
+MKDIR="mkdir -p "
+if [ "$( whoami )" == "root" ]; then
+  UPDATE="apt-get update"
+  IN="apt-get install -y "
+else
+  UPDATE="sudo apt-get update"
+  IN="sudo apt-get install -y "
+fi
+
+
+# If no package was given in input, ask which to install
 if [ "$1" == "" ]; then
-  echo "Possible packages for Ubuntu are: ${LIST[*]}"
+  INFO $GREEN "Choose packages to install"
+  INFO $WHITE "Possible packages for Ubuntu are: ${LIST[*]}"
   read -e -r -p "Insert packages names or \`all\` for to install all packages: " string
   if [ "$string" == "all" ]; then
     packages=("${LIST[*]}")
@@ -30,22 +62,11 @@ else
 fi
 
 check_input "${packages[*]}" "${LIST[*]}"
-echo "About to install packages: ${packages[*]}"
+INFO $BGREEN "About to install packages: ${packages[*]}"
 
-#Define commands
-MK=make
-CLONE="git clone"
-MOVE=cp
-MKDIR="mkdir -p "
-echo "Updating system"
-if [ "$( whoami )" == "root" ]; then
-  apt-get update
-  IN="apt-get install -y "
-else
-  sudo apt-get update
-  IN="sudo apt-get install -y "
-fi
-DEP="xarg $IN < "
+# Update system before starting
+INFO $BBLUE "Updating system"
+$UPDATE &> /dev/null
 
 #Install packages
 
@@ -90,11 +111,21 @@ fi
 
 #OH MY ZSH
 if in_list "${packages[*]}" "zsh"; then
-  echo -e "${BLUE}Oh My Zsh${NC}"
-  $DEP apt-req/zsh.txt
-  $IN git
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-  sed -i "s/robbyrussell/bira/g" ~/.zshrc 
+  INFO ${BBLUE} "Oh My Zsh"
+  INFO ${GREEN} "Installing dependencies"
+  dep "${IN}" "apt-req/zsh.txt" &> /dev/null
+  if [ $? -eq 0 ]; then
+    INFO ${GREEN} "Installing zsh package"
+    $IN zsh &> /dev/null
+    INFO ${GREEN} "Installing oh-my-zsh"
+    wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O zsh_install.sh  &> /dev/null
+    sudo -u ${real_user} sed -i "s/RUNZSH=no; CHSH=no/RUNZSH=no/g" zsh_install.sh                     1> /dev/null
+    sudo -u ${real_user} sh -c "$(cat zsh_install.sh)" "" --unattended                                &> /dev/null
+    sudo -u ${real_user} sed -i "s/robbyrussell/bira/g" ${real_home}/.zshrc                           1> /dev/null
+    rm zsh_install.sh
+  else
+    ERROR "Could not install dependencies"
+  fi
 fi
   
 #NEOVIM

@@ -1,12 +1,33 @@
 #!/bin/bash
 NC="\033[0m"
-WHITE="\033[1;37m"
+#------------------
+WHITE="\033[0;37m"
 BLUE="\033[0;34m"
 GREEN="\033[0;32m"
+RED="\033[0;31m"
+#------------------
+BWHITE="\033[1;37m"
+BBLUE="\033[1;34m"
+BGREEN="\033[1;32m"
+BRED="\033[1;31m"
+#------------------
+
+function INFO {
+  echo -e "$1$2${NC}"
+}
+
+function ERROR {
+  echo -e "${BRED}$1${NC}"
+  exit
+}
 
 function MV {
   echo -e "\t$1 $2 $3"
   $1 $2 $3
+}
+
+function dep {
+  xargs $1 < $2
 }
 
 function check_array {
