@@ -75,9 +75,12 @@ INFO $BBLUE "Updating system"
 # Install packages
 
 # CODE
-# wget https://vscode.download.prss.microsoft.com/dbazure/download/stable/5437499feb04f7a586f677b155b039bc2b3669eb/code_1.90.2-1718751586_amd64.deb -O code.deb
-# sudo dpkg -i code.deb
-# rm code.deb
+if in_list "${packages[*]}" "latex"; then
+  wget https://vscode.download.prss.microsoft.com/dbazure/download/stable/5437499feb04f7a586f677b155b039bc2b3669eb/code_1.90.2-1718751586_amd64.deb -O code.deb
+  sudo dpkg -i code.deb
+  rm code.deb
+fi
+
 
 # LATEX
 if in_list "${packages[*]}" "latex"; then
@@ -221,7 +224,25 @@ if in_list "${packages[*]}" "neovim"; then
   sudo -u ${real_user} git clone --depth 1 https://github.com/AstroNvim/template ${real_home}/.config/nvim-profiles/astronvim &> /dev/null
   sudo -u ${real_user} rm -rf ${real_home}/.config/nvim-profiles/astronvim/.git
   sudo chown -R ${real_user}:${real_user} ${real_home}/.config/nvim-profiles
+
+  INFO ${GREEN} "Installing Dependencies"
+  # VictorMono Font 
+  if [ ! -d ${real_home}/.local/share/fonts ]; then
+    mkdir ${real_home}/.local/share/fonts
+  fi
+  wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/VictorMono.zip
+  # wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip &> /dev/null
+  unzip -f VictorMono.zip -d ${real_home}/.local/share/fonts
+  rm VictorMono.zip
+  fc-cache -f -v
+
+  INFO ${GREEN} "Configuring Astronvim"
   sudo -u "${real_user}" bash -c 'NVIM_APPNAME=nvim-profiles/astronvim /opt/nvim-linux64/bin/nvim +qall'
+  if [[ "${real_shell}" == *"zsh" ]]; then 
+    echo "export NVIM_APPNAME=nvim-profiles/astronvim" >> "${real_home}/.zshrc"
+  elif [[ "${real_shell}" == *"bash" ]]; then 
+    echo "export NVIM_APPNAME=nvim-profiles/astronvim" >> "${real_home}/.bashrc"
+  fi
 fi
 
 # VIM
