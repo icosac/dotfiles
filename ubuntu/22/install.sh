@@ -115,8 +115,8 @@ fi
 
 # CODE
 if in_list "${packages[*]}" "code"; then
-  wget https://vscode.download.prss.microsoft.com/dbazure/download/stable/5437499feb04f7a586f677b155b039bc2b3669eb/code_1.90.2-1718751586_amd64.deb -O code.deb
-  sudo dpkg -i code.deb
+  wget https://vscode.download.prss.microsoft.com/dbazure/download/stable/5437499feb04f7a586f677b155b039bc2b3669eb/code_1.90.2-1718751586_amd64.deb -O code.deb &> /dev/null
+  sudo dpkg -i code.deb &> /dev/null
   rm code.deb
 fi
 
@@ -197,8 +197,8 @@ fi
 if in_list "${packages[*]}" "git"; then  
   INFO ${BBLUE} "GIT"
   INFO ${GREEN} "Installing git"
-  $IN git ^> /dev/null
-  INFO ${GREEN} "Reading and setting the configuration from ${}/git/config"
+  $IN git &> /dev/null
+  INFO ${GREEN} "Reading and setting the configuration from $CD/git/config"
   . git/config
   sudo -u ${real_user} git config --global user.email $git_email
   sudo -u ${real_user} git config --global user.name $git_username
