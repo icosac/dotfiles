@@ -32,7 +32,7 @@ for entry in "${HOSTS[@]}"; do
   run chmod 600 "$key"
   # ${name}_dotfile keeps remotes created by the old scripts working
   config+="
-Host $host ${name}_dotfile
+Host $host
   HostName $host
   User git
   IdentityFile ~/.ssh/$name
