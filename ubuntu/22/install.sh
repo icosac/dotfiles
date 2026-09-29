@@ -112,11 +112,15 @@ if in_list "${packages[*]}" "zsh"; then
   fi
 fi
 
-
 # CODE
 if in_list "${packages[*]}" "code"; then
+  INFO ${BBLUE} "VISUAL STUDIO CODE"
+  INFO ${GREEN} "Downloading .deb"
   wget https://vscode.download.prss.microsoft.com/dbazure/download/stable/5437499feb04f7a586f677b155b039bc2b3669eb/code_1.90.2-1718751586_amd64.deb -O code.deb &> /dev/null
+  INFO ${GREEN} "Installing code"
   sudo dpkg -i code.deb &> /dev/null
+  INFO ${GREEN} "Installing missing dependencies"
+  sudo apt-get install -f
   rm code.deb
 fi
 
