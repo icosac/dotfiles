@@ -1,0 +1,10 @@
+# Your name/email live in ~/.gitconfig.local, which is NOT in the repo.
+# Create it with: ./install.sh git-identity
+
+[init]
+	defaultBranch = main
+[push]
+	autoSetupRemote = true
+
+[include]
+	path = ~/.gitconfig.local

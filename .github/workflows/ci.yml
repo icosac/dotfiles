@@ -1,0 +1,39 @@
+name: ci
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: shellcheck -x install.sh lib/*.sh setup/*.sh tests/*.sh .githooks/pre-commit
+
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ["ubuntu:18.04", "ubuntu:20.04", "ubuntu:22.04", "ubuntu:24.04", "debian:10"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: install twice in ${{ matrix.image }}
+        run: docker run --rm -v "$PWD:/src:ro" "${{ matrix.image }}" bash /src/tests/container-test.sh
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: first run
+        run: ./install.sh ohmyzsh neovim tmux-plugins
+      - name: second run changes nothing
+        run: |
+          out="$(./install.sh ohmyzsh neovim tmux-plugins 2>&1)"; echo "$out"
+          ! grep -qE "linked |backed up|added line" <<<"$out"
+      - name: checks
+        run: |
+          test -L ~/.zshrc && test -L ~/.config/nvim
+          zsh -i -c exit
+          nvim --headless +qa

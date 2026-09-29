@@ -1,5 +1,7 @@
-.netrwhist
-autoload/
-plugged/
-undo/
+# Private / machine-specific files never belong here
+*.local
+*.tar.gz
+*.zip
+*.deb
 *.swp
+.netrwhist

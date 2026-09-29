@@ -1,0 +1,3 @@
+# ripgrep / fd-find are not packaged for 18.04
+!ripgrep
+!fd-find

@@ -1,0 +1,9 @@
+# Base packages for macOS
+cmake
+fd
+git
+ripgrep
+tmux
+tmux-mem-cpu-load
+wget
+zsh

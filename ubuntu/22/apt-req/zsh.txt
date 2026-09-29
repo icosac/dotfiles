@@ -1,4 +1,0 @@
-curl
-wget
-git
-kitty

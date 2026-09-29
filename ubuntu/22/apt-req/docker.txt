@@ -1,5 +1,0 @@
-apt-transport-https
-curl
-gnupg-agent
-ca-certificates
-software-properties-common

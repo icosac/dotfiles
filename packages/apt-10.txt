@@ -1,0 +1,2 @@
+# fd-find is not packaged for Debian 10
+!fd-find

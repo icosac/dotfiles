@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Privacy guard: refuse commits that add emails, home-directory paths or private keys.
+set -euo pipefail
+
+email='[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}'
+home='(/home|/Users)/[A-Za-z0-9_.-]+'
+key='-----BEGIN [A-Z ]*PRIVATE KEY-----'
+
+hits="$(git diff --cached -U0 --no-color -- . ':(exclude).githooks' ':(exclude)tests' |
+  grep -E '^\+[^+]' |
+  grep -Ev 'git@(github\.com|gitlab\.com|bitbucket\.org)|noreply@' |
+  grep -En -e "$email" -e "$home" -e "$key" || true)"
+
+if [ -n "$hits" ]; then
+  echo "pre-commit: staged changes look like they contain private info:" >&2
+  printf '%s\n' "$hits" | sed 's/^/  /' >&2
+  echo "Move it to ~/.gitconfig.local / ~/.zshrc.local, or commit with --no-verify if it is fine." >&2
+  exit 1
+fi
