@@ -1,0 +1,5 @@
+# Swap Caps Lock and Escape on built-in (AT/i8042) laptop keyboards only;
+# USB/Bluetooth keyboards are not matched. Installed by setup/linux-settings.sh.
+evdev:atkbd:dmi:*
+ KEYBOARD_KEY_3a=esc
+ KEYBOARD_KEY_01=capslock
