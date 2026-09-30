@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # desc: macOS: brew update && upgrade at reboot and daily at 20:00 (cron)
 set -euo pipefail
-# shellcheck source=lib/common.sh
+
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
-# shellcheck source=lib/os.sh
 . "$DOTFILES/lib/os.sh"
+
 refuse_root
 
 is_macos || { warn "macOS only, skipping"; exit 0; }

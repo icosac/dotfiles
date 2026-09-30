@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # desc: oh-my-zsh (keeps the repo .zshrc) and zsh as login shell
 set -euo pipefail
-# shellcheck source=lib/common.sh
+
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
-# shellcheck source=lib/os.sh
 . "$DOTFILES/lib/os.sh"
+
 refuse_root
 
 have zsh || pkg_install zsh

@@ -1,0 +1,7 @@
+exec_always --no-startup-id bash -lc '\
+  gsettings set org.gnome.desktop.input-sources sources "[('"'"'xkb'"'"', '"'"'us'"'"'), ('"'"'xkb'"'"', '"'"'it'"'"')]" && \
+  gsettings set org.gnome.desktop.input-sources xkb-options "[ '"'"'grp:alt_space_toggle'"'"' ]" && \
+  setxkbmap -layout "us,it" -option "grp:alt_space_toggle" \
+'
+exec_always --no-startup-id pkill -f keyboard-layout-watcher
+exec_always --no-startup-id ~/.config/regolith3/i3xrocks/scripts/keyboard-layout-watcher

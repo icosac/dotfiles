@@ -1,0 +1,4 @@
+# Workspace app icons
+# [workspace-apps]
+# command=$HOME/.config/regolith3/i3xrocks/scripts/workspace-apps
+# interval=3

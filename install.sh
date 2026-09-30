@@ -5,9 +5,8 @@ set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export DOTFILES
-# shellcheck source=lib/common.sh
+
 . "$DOTFILES/lib/common.sh"
-# shellcheck source=lib/os.sh
 . "$DOTFILES/lib/os.sh"
 
 usage() {

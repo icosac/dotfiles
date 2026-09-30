@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # desc: CUDA toolkit from NVIDIA's apt repo (Ubuntu 20.04/22.04/24.04, NVIDIA GPU only)
 set -euo pipefail
-# shellcheck source=lib/common.sh
+
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
-# shellcheck source=lib/os.sh
 . "$DOTFILES/lib/os.sh"
+
 refuse_root
 
 if ! is_ubuntu 20.04 22.04 24.04; then

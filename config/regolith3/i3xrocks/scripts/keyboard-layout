@@ -1,0 +1,52 @@
+#!/bin/bash
+# Simple i3xrocks block to show the current keyboard layout.
+# Prefers xkblayout-state or xkb-switch if present; falls back to static list.
+
+LABEL_ICON=${icon:-$(xrescat i3xrocks.label.kbd )}
+LABEL_COLOR=${label_color:-$(xrescat i3xrocks.label.color "#7B8394")}
+VALUE_COLOR=${color:-$(xrescat i3xrocks.value.color "#D8DEE9")}
+VALUE_FONT=${font:-$(xrescat i3xrocks.value.font "Source Code Pro Medium 13")}
+
+if command -v xkblayout-state >/dev/null 2>&1; then
+    LAYOUT=$(xkblayout-state print "%s")
+elif command -v xkb-switch >/dev/null 2>&1; then
+    LAYOUT=$(xkb-switch -p)
+else
+    # Fallback 1: GNOME/Regolith input sources (works if gsettings is controlling layouts)
+    CURRENT=$(gsettings get org.gnome.desktop.input-sources current 2>/dev/null | awk '{print $2}')
+    SOURCES=$(gsettings get org.gnome.desktop.input-sources sources 2>/dev/null)
+    if [ -n "$CURRENT" ] && [ -n "$SOURCES" ]; then
+        # Turn "[(\'xkb\', \'us\'), (\'xkb\', \'it\')]" into array of layout codes
+        LAYOUTS=$(echo "$SOURCES" | tr -d "[]" | tr "," "\n" | awk -F"'" '{for(i=1;i<=NF;i++) if($i ~ /^[a-z][a-z]$/) print $i}')
+        LAYOUT=$(echo "$LAYOUTS" | sed -n "$((CURRENT+1))p")
+    fi
+
+    # Fallback 2: derive active group from XKB state
+    if [ -z "$LAYOUT" ]; then
+        LAYOUTS=$(setxkbmap -query 2>/dev/null | awk -F: '/layout/ {gsub(/ /, "", $2); print $2}')
+        IFS=',' read -r -a LAYOUT_ARRAY <<< "$LAYOUTS"
+        CURRENT_GROUP=$(xkbcomp -xkb "$DISPLAY" - 2>/dev/null | awk '/group=/{gsub(/[; ]/, "", $0); split($0,a,"="); print a[2]; exit}')
+        if [ -n "$CURRENT_GROUP" ] && [ "${#LAYOUT_ARRAY[@]}" -gt 0 ]; then
+            IDX=$((CURRENT_GROUP))
+            if [ "$IDX" -ge 0 ] && [ "$IDX" -lt "${#LAYOUT_ARRAY[@]}" ]; then
+                LAYOUT=${LAYOUT_ARRAY[$IDX]}
+            fi
+        fi
+        # Last resort: first layout in the list
+        if [ -z "$LAYOUT" ] && [ "${#LAYOUT_ARRAY[@]}" -gt 0 ]; then
+            LAYOUT=${LAYOUT_ARRAY[0]}
+        fi
+    fi
+fi
+
+# If everything failed, show question marks so the block isn't empty.
+[ -z "$LAYOUT" ] && LAYOUT="??"
+
+# Normalize labels: show "en" for US, "it" for Italian, otherwise layout code.
+case "$LAYOUT" in
+    us)  LAYOUT_LABEL="en" ;;
+    it)  LAYOUT_LABEL="it" ;;
+    *)   LAYOUT_LABEL="$LAYOUT" ;;
+esac
+
+echo "<span font_desc=\"Font Awesome 7 Free\" color=\"${LABEL_COLOR}\">${LABEL_ICON}</span><span font_desc=\"${VALUE_FONT}\" color=\"${VALUE_COLOR}\"> ${LAYOUT_LABEL}</span>"

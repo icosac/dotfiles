@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# desc: JetBrainsMono + VictorMono Nerd Fonts (FORCE=1 to reinstall)
+# desc: JetBrainsMono + VictorMono + Iosevka Nerd Fonts (FORCE=1 to reinstall)
 set -euo pipefail
-# shellcheck source=lib/common.sh
+
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
-# shellcheck source=lib/os.sh
 . "$DOTFILES/lib/os.sh"
+
 refuse_root
 
-FONTS=(JetBrainsMono VictorMono)
+FONTS=(JetBrainsMono VictorMono Iosevka)
 
 if is_macos; then
-  run brew install --cask font-jetbrains-mono-nerd-font font-victor-mono-nerd-font
+  run brew install --cask font-jetbrains-mono-nerd-font font-victor-mono-nerd-font font-iosevka-nerd-font
   exit 0
 fi
 

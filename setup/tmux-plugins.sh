@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # desc: tmux-mem-cpu-load for the status bar (built into ~/.local/bin on Linux)
 set -euo pipefail
-# shellcheck source=lib/common.sh
+
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
-# shellcheck source=lib/os.sh
 . "$DOTFILES/lib/os.sh"
+
 refuse_root
 
 if have tmux-mem-cpu-load && [ "${FORCE:-0}" != 1 ]; then

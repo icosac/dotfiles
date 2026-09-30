@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # desc: ROS 2 via Tiryoh's scripts (18.04 dashing, 20.04 foxy, 22.04 humble, 24.04 jazzy); ROS2_PACKAGE=desktop|ros-base
 set -euo pipefail
-# shellcheck source=lib/common.sh
+
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
-# shellcheck source=lib/os.sh
 . "$DOTFILES/lib/os.sh"
+
 refuse_root
 
 case "$OS_ID $OS_VERSION" in

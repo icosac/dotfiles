@@ -1,0 +1,14 @@
+regolith.wallpaper.file:  ./assets/IMG_2882.png
+regolith.lockscreen.wallpaper.file:  ./assets/IMG_2882.png
+regolith.look.path: /usr/share/regolith-look/nord
+
+i3xrocks.label.cpu: 
+i3xrocks.label.wired: 
+i3xrocks.label.wifi: 
+i3xrocks.label.up: 
+i3xrocks.label.dn: 
+
+i3xrocks.value.font: JetBrainsMono Nerd Font Mono 13
+i3xrocks.label.font: JetBrainsMono Nerd Font Mono 13
+
+wm.binding.bar_toggle: F24

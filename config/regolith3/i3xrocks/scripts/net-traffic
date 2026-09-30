@@ -1,0 +1,70 @@
+#!/bin/bash
+
+set -Eeuo pipefail
+
+# Interval is controlled by the i3xrocks block (repeat), no button handlers here.
+
+DLY=${DLY:-1}
+ERROR_DLY=${ERROR_DLY:-1}
+NUMFMT=${NUMFMT:-"numfmt --to=iec --format=%f"}
+
+# Pull fonts/colors/labels from Xresources with sensible defaults.
+VALUE_COLOR=${color:-$(xrescat i3xrocks.value.color "#D8DEE9")}
+LABEL_COLOR=${label_color:-$(xrescat i3xrocks.label.color "#7B8394")}
+VALUE_FONT=${font:-$(xrescat i3xrocks.value.font "JetBrainsMono Nerd Font Mono 13")}
+ICON_FONT=${icon_font:-$(xrescat i3xrocks.icon.font "Font Awesome 7 Free Solid, ${VALUE_FONT}")}
+
+LABEL_WIFI=${label_wifi:-$(xrescat i3xrocks.label.wifi "")}
+LABEL_WIRED=${label_wired:-$(xrescat i3xrocks.label.wired "")}
+LABEL_UP=${label_up:-$(xrescat i3xrocks.label.up "")}
+LABEL_DN=${label_dn:-$(xrescat i3xrocks.label.dn "")}
+
+# span for numeric values
+vspan() {
+  echo "<span font_desc=\"${VALUE_FONT}\" color=\"${VALUE_COLOR}\">${1}</span>"
+}
+
+# span for icons/labels
+lspan() {
+  echo "<span font_desc=\"${ICON_FONT}\" color=\"${LABEL_COLOR}\">${1}</span>"
+}
+
+# Determine the interface: first default route that's not ppp/tun/tap unless BLOCK_INSTANCE is set.
+IF="${BLOCK_INSTANCE:-$(awk '$2 == 00000000 && $1 !~ /(ppp|tun|tap)/ { print $1; exit }' < /proc/net/route)}"
+IF_PATH="/sys/class/net/${IF}"
+
+if [ -d "${IF_PATH}/bonding" ]; then
+  IF="$(< "${IF_PATH}/bonding/active_slave")"
+  IF_PATH="/sys/class/net/${IF}"
+fi
+
+if [[ -z "${IF:-}" || ! -d "$IF_PATH" || ! -f "${IF_PATH}/statistics/rx_bytes" || ! -f "${IF_PATH}/statistics/tx_bytes" ]]; then
+  sleep "${ERROR_DLY}"
+  exit 0
+fi
+
+if [ -d "${IF_PATH}/wireless" ]; then
+  NIC="${LABEL_WIFI}"
+else
+  NIC="${LABEL_WIRED}"
+fi
+
+# Read counters, wait, read again, then compute per-second bytes.
+RX1=$(cat "${IF_PATH}/statistics/rx_bytes")
+TX1=$(cat "${IF_PATH}/statistics/tx_bytes")
+sleep "${DLY}"
+RX2=$(cat "${IF_PATH}/statistics/rx_bytes")
+TX2=$(cat "${IF_PATH}/statistics/tx_bytes")
+
+RX_DIFF=$(( (RX2 - RX1) / DLY ))
+TX_DIFF=$(( (TX2 - TX1) / DLY ))
+
+RX=$(${NUMFMT} <<<"${RX_DIFF}")
+TX=$(${NUMFMT} <<<"${TX_DIFF}")
+
+# Append B if numfmt didn't add a unit letter.
+[[ "${RX}" =~ [BKMGTP]$ ]] || RX="${RX}B"
+[[ "${TX}" =~ [BKMGTP]$ ]] || TX="${TX}B"
+
+# wifi/ethernet icon + down value + down label + up value + up label
+echo "$(lspan "${NIC}") $(vspan "${RX}")$(lspan "${LABEL_DN}") $(vspan "${TX}")$(lspan "${LABEL_UP}")"

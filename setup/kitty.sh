@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # desc: kitty terminal (+ Nerd Fonts)
 set -euo pipefail
-# shellcheck source=lib/common.sh
+
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
-# shellcheck source=lib/os.sh
 . "$DOTFILES/lib/os.sh"
+
 refuse_root
 
 if ! have kitty; then

@@ -1,0 +1,5 @@
+# Keyboard layout indicator
+[keyboard-layout]
+command=$HOME/.config/regolith3/i3xrocks/scripts/keyboard-layout
+interval=repeat
+signal=12

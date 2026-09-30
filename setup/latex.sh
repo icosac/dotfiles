@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # desc: TeX Live + latexmk + pygments (for minted); ~/.latexmkrc is linked by install.sh
 set -euo pipefail
-# shellcheck source=lib/common.sh
+
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
-# shellcheck source=lib/os.sh
 . "$DOTFILES/lib/os.sh"
+
 refuse_root
 
 if is_macos; then

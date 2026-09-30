@@ -1,0 +1,5 @@
+bar {
+  mode invisible
+  modifier none
+  status_command /bin/true
+}

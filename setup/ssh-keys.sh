@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # desc: ed25519 keys for GitHub/GitLab/Bitbucket + ~/.ssh/config.d/dotfiles
 set -euo pipefail
-# shellcheck source=lib/common.sh
+
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
-# shellcheck source=lib/os.sh
 . "$DOTFILES/lib/os.sh"
+
 refuse_root
 
 ssh_dir="$HOME/.ssh"

@@ -1,0 +1,21 @@
+#!/bin/bash
+# Watches keyboard layout changes and signals i3xrocks to refresh immediately.
+
+SCRIPT_DIR=$(dirname "$0")
+BLOCK_SCRIPT="${SCRIPT_DIR}/keyboard-layout"
+SIGNAL_NUM=12
+SLEEP_SECS=0.5
+
+last_state=""
+while true; do
+    current_state=$(setxkbmap -query 2>/dev/null | awk -F: '
+        /layout/ {gsub(/ /, "", $2); layout=$2}
+        /variant/ {gsub(/ /, "", $2); variant=$2}
+        END {print layout ":" variant}
+    ')
+    if [ "$current_state" != "$last_state" ]; then
+        last_state="$current_state"
+        pkill -RTMIN+${SIGNAL_NUM} i3blocks 2>/dev/null
+    fi
+    sleep "$SLEEP_SECS"
+done
