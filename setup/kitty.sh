@@ -14,6 +14,7 @@ if ! have kitty; then
     pkg_install kitty
   else
     # Not packaged (e.g. Ubuntu 18.04): official installer into ~/.local/kitty.app
+    log "installing kitty with the upstream installer"
     run sh -c 'curl -fsSL https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n'
     run mkdir -p "$HOME/.local/bin"
     run ln -sf "$HOME/.local/kitty.app/bin/kitty" "$HOME/.local/bin/kitty"

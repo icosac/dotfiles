@@ -3,7 +3,56 @@
 # opt-in setup/<name>.sh given on the command line. Safe to re-run.
 set -euo pipefail
 
-DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# ---------------------------------------------------------------------------
+# Bootstrap: when this script is not inside a clone (e.g. downloaded alone or
+# run as `curl -fsSL .../install.sh | bash`), install git, clone the repo and
+# re-run the install.sh from the clone. Self-contained: lib/ may not exist yet.
+DOTFILES_REPO="${DOTFILES_REPO:-https://github.com/icosac/dotfiles.git}"
+DOTFILES_BRANCH="${DOTFILES_BRANCH:-dev}"
+
+self_dir=""
+[ -f "${BASH_SOURCE[0]:-}" ] && self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -z "$self_dir" ] || [ ! -e "$self_dir/.git" ] || [ ! -f "$self_dir/lib/common.sh" ]; then
+  bs_die() { printf 'error %s\n' "$*" >&2; exit 1; }
+  dest="$HOME/dotfiles" prev=""
+  for a in "$@"; do
+    [ "$prev" = --dir ] && dest="$a"
+    case "$a" in --dir=*) dest="${a#--dir=}" ;; esac
+    prev="$a"
+  done
+  [ "$prev" = --dir ] && bs_die "--dir needs a directory"
+  [ "$(id -u)" -ne 0 ] || bs_die "Run as your normal user, not root/sudo. sudo is used only where needed."
+
+  if ! command -v git >/dev/null 2>&1; then
+    printf '==> installing git\n'
+    if command -v apt-get >/dev/null 2>&1; then
+      sudo apt-get update -qq && sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq git ca-certificates >/dev/null \
+        || bs_die "could not install git"
+    elif [ "$(uname -s)" = Darwin ]; then
+      xcode-select --install 2>/dev/null || true
+      bs_die "git comes with the Xcode Command Line Tools: finish their install, then run this again"
+    else
+      bs_die "install git, then run this again"
+    fi
+  fi
+
+  if [ -e "$dest/.git" ]; then
+    printf '==> using the existing clone in %s\n' "$dest"
+  elif [ -e "$dest" ] && [ -n "$(ls -A "$dest")" ]; then
+    bs_die "$dest exists and is not a git clone: pick another place with --dir DIR"
+  else
+    printf '==> cloning %s (branch %s) into %s\n' "$DOTFILES_REPO" "$DOTFILES_BRANCH" "$dest"
+    git clone -q --branch "$DOTFILES_BRANCH" "$DOTFILES_REPO" "$dest" || bs_die "git clone failed"
+  fi
+  cd "$dest"
+  # When piped into bash, stdin is the script itself: give prompts the terminal back
+  if [ ! -t 0 ] && { : </dev/tty; } 2>/dev/null; then
+    exec bash ./install.sh "$@" </dev/tty
+  fi
+  exec bash ./install.sh "$@"
+fi
+
+DOTFILES="$self_dir"
 export DOTFILES
 
 . "$DOTFILES/lib/common.sh"
@@ -18,6 +67,8 @@ base packages, then runs the named opt-in setups from setup/.
 
 Options:
   -n, --dry-run      print what would happen, change nothing
+      --dir DIR      where to clone the repo when run outside a clone (default ~/dotfiles)
+  -v, --verbose      show every command's output (default: only on failure)
   -l, --link-only    only link configs (no packages, no sudo)
       --no-packages  skip base package install
       --list         list available setups
@@ -41,6 +92,9 @@ ARGS="$*" LINK_ONLY=0 PACKAGES=1 SETUPS=()
 while [ $# -gt 0 ]; do
   case "$1" in
     -n|--dry-run)   DRY_RUN=1 ;;
+    -v|--verbose)   VERBOSE=1 ;;
+    --dir)          shift; [ $# -gt 0 ] || die "--dir needs a directory" ;;  # only used by the bootstrap
+    --dir=*)        ;;
     -l|--link-only) LINK_ONLY=1; PACKAGES=0 ;;
     --no-packages)  PACKAGES=0 ;;
     --list)         list_setups; exit 0 ;;
@@ -51,7 +105,7 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
-export DRY_RUN BACKUP_DIR
+export DRY_RUN VERBOSE BACKUP_DIR
 
 refuse_root
 if [ "$LINK_ONLY" = 1 ] && [ ${#SETUPS[@]} -gt 0 ]; then
@@ -61,9 +115,20 @@ fi
 LOG_DIR="$HOME/.cache/dotfiles"
 mkdir -p "$LOG_DIR"
 LOG="$LOG_DIR/install.log"
+export LOG
 exec > >(tee -a "$LOG") 2>&1
 printf '\n===== %s  %s %s (%s)  %s\n' "$(date)" "$OS_ID" "$OS_VERSION" "$ARCH" "$ARGS"
 [ "$DRY_RUN" = 1 ] && log "dry run: nothing will be changed"
+
+# Ask for sudo once now (command output is hidden later, so a prompt could go
+# unnoticed) and keep it fresh until we exit.
+if [ "$DRY_RUN" != 1 ] && [ ${#SUDO[@]} -gt 0 ] && { [ "$PACKAGES" = 1 ] || [ ${#SETUPS[@]} -gt 0 ]; }; then
+  log "sudo is needed for packages and setups"
+  sudo -v || die "could not get sudo"
+  while kill -0 $$ 2>/dev/null; do sudo -n -v 2>/dev/null; sleep 60; done &
+  SUDO_KEEPALIVE=$!
+  trap 'kill "$SUDO_KEEPALIVE" 2>/dev/null' EXIT
+fi
 
 # ---------------------------------------------------------------------------
 section "Linking configs"

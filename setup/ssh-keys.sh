@@ -24,7 +24,7 @@ for entry in "${HOSTS[@]}"; do
   if [ ! -f "$key" ] && [ -t 0 ]; then
     read -r -p "Create an SSH key for $host? [y/N] " ans
     if [ "$ans" = y ] || [ "$ans" = Y ]; then
-      run ssh-keygen -t ed25519 -C "$(whoami)@$(hostname)" -f "$key"
+      run_tty ssh-keygen -t ed25519 -C "$(whoami)@$(hostname)" -f "$key"
       log "add this public key to $host:"; cat "$key.pub"
     fi
   fi

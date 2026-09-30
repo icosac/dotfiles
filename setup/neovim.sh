@@ -8,7 +8,7 @@ set -euo pipefail
 refuse_root
 
 if is_macos; then
-  have nvim || run brew install neovim
+  have nvim || { log "installing neovim"; run brew install neovim; }
 else
   # AstroNvim needs these at runtime
   for p in git curl; do have "$p" || pkg_install "$p"; done
@@ -23,7 +23,7 @@ else
     # Official builds need a recent glibc; neovim-releases has builds for older ones (e.g. Ubuntu 18.04).
     for url in "https://github.com/neovim/neovim/releases/download/stable/$asset" \
                "https://github.com/neovim/neovim-releases/releases/latest/download/$asset"; do
-      log "trying $url"
+      log "downloading neovim from $url"
       rm -rf "$tmp/nvim" && mkdir -p "$tmp/nvim"
       download "$url" "$tmp/$asset" || continue
       tar -C "$tmp/nvim" --strip-components=1 -xzf "$tmp/$asset"

@@ -13,6 +13,7 @@ have git || pkg_install git
 if [ -d "$HOME/.oh-my-zsh" ]; then
   ok "oh-my-zsh already installed"
 else
+  log "installing oh-my-zsh"
   make_tmp; tmp="$TMP_DIR"
   download https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh "$tmp/omz.sh"
   run env RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh "$tmp/omz.sh" --unattended --keep-zshrc
@@ -26,10 +27,9 @@ else
 fi
 if [ "$(basename "$login_shell")" = zsh ]; then
   ok "login shell is already zsh"
-elif [ -t 0 ]; then
-  grep -qxF "$zsh_path" /etc/shells || printf '%s\n' "$zsh_path" | as_root tee -a /etc/shells >/dev/null
-  log "changing login shell to $zsh_path (asks for your password)"
-  run chsh -s "$zsh_path"
 else
-  warn "not a terminal: run 'chsh -s $zsh_path' yourself"
+  grep -qxF "$zsh_path" /etc/shells || printf '%s\n' "$zsh_path" | as_root tee -a /etc/shells >/dev/null
+  # via sudo, so it reuses install.sh's cached credentials instead of asking again
+  log "changing login shell to $zsh_path"
+  as_root chsh -s "$zsh_path" "$USER" || warn "could not change the login shell: run 'chsh -s $zsh_path' yourself"
 fi

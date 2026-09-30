@@ -8,6 +8,7 @@ set -euo pipefail
 refuse_root
 
 if is_macos; then
+  log "installing Docker Desktop"
   run brew install --cask docker
   exit 0
 fi

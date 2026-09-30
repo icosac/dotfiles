@@ -2,6 +2,7 @@
 
 DOTFILES="${DOTFILES:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 DRY_RUN="${DRY_RUN:-0}"
+VERBOSE="${VERBOSE:-0}"
 BACKUP_DIR="${BACKUP_DIR:-$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)}"
 
 if [ -t 1 ]; then
@@ -19,8 +20,29 @@ section() { printf '\n%s%s%s\n' "$BOLD" "$*" "$NC"; }
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
-# Run a command, or just print it in dry-run mode.
+# Run a command quietly, or just print it in dry-run mode. Its output goes to
+# $LOG (when set) and is shown only if it fails; VERBOSE=1 shows it live.
 run() {
+  if [ "$DRY_RUN" = 1 ]; then
+    printf '   [dry-run] %s\n' "$*"
+    return 0
+  fi
+  [ "$VERBOSE" = 1 ] && { "$@"; return; }
+  local out rc=0
+  out="$(mktemp "${TMPDIR:-/tmp}/dotfiles-run.XXXXXX")"
+  "$@" >"$out" 2>&1 || rc=$?
+  [ -n "${LOG:-}" ] && { printf -- '--- $ %s\n' "$*"; cat "$out"; } >>"$LOG"
+  if [ "$rc" != 0 ]; then
+    err "failed (exit $rc): $*"
+    tail -n 40 "$out" | sed 's/^/   | /' >&2
+    [ -n "${LOG:-}" ] && err "full output in $LOG"
+  fi
+  rm -f "$out"
+  return "$rc"
+}
+
+# Run an interactive command (prompts, passwords) with the terminal attached.
+run_tty() {
   if [ "$DRY_RUN" = 1 ]; then
     printf '   [dry-run] %s\n' "$*"
   else

@@ -18,6 +18,7 @@ fi
 
 case "$ARCH" in x86_64) repo_arch=x86_64 ;; arm64) repo_arch=sbsa ;; *) die "unsupported arch $ARCH" ;; esac
 if ! apt_has cuda-keyring; then
+  log "adding NVIDIA CUDA repository"
   make_tmp
   download "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu${OS_VERSION//./}/$repo_arch/cuda-keyring_1.1-1_all.deb" "$TMP_DIR/cuda-keyring.deb"
   as_root dpkg -i "$TMP_DIR/cuda-keyring.deb"

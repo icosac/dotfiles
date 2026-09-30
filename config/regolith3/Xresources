@@ -1,5 +1,5 @@
-regolith.wallpaper.file:  ./assets/IMG_2882.png
-regolith.lockscreen.wallpaper.file:  ./assets/IMG_2882.png
+regolith.wallpaper.file:  ~/.background.png
+regolith.lockscreen.wallpaper.file:  ~/.background.png
 regolith.look.path: /usr/share/regolith-look/nord
 
 i3xrocks.label.cpu: 

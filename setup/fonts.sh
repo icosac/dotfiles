@@ -10,6 +10,7 @@ refuse_root
 FONTS=(JetBrainsMono VictorMono Iosevka)
 
 if is_macos; then
+  log "installing Nerd Fonts"
   run brew install --cask font-jetbrains-mono-nerd-font font-victor-mono-nerd-font font-iosevka-nerd-font
   exit 0
 fi
@@ -31,5 +32,5 @@ for font in "${FONTS[@]}"; do
   run unzip -oq "$tmp/$font.zip" -d "$dest"
   changed=1
 done
-[ "$changed" = 1 ] && run fc-cache -f "$dir"
+[ "$changed" = 1 ] && log "refreshing font cache" && run fc-cache -f "$dir"
 ok "fonts ready"

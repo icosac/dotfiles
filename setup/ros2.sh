@@ -27,6 +27,7 @@ if [ -f "/opt/ros/$distro/setup.bash" ] && [ "${FORCE:-0}" != 1 ]; then
   ok "ROS 2 $distro already installed (FORCE=1 to re-run)"
 else
   warn "the upstream script also runs a full 'apt upgrade'"
+  log "running the upstream ROS 2 $distro install script (takes a while)"
   run bash "$script"
 fi
 ok "in zsh, run 'ros2env' to source ROS 2 $distro (see config/zsh/zshrc.d/60-ros.zsh)"

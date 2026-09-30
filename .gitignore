@@ -5,3 +5,6 @@
 *.deb
 *.swp
 .netrwhist
+
+# Regolith writes first-login state here (through the ~/.config/regolith3 symlink)
+config/regolith3/flags/

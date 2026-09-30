@@ -8,6 +8,7 @@ set -euo pipefail
 refuse_root
 
 if is_macos; then
+  log "installing MacTeX (large download)"
   run brew install --cask mactex-no-gui
   run brew install pygments
   exit 0

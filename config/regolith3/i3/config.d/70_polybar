@@ -1,5 +1,5 @@
 # Launch Polybar (uses config at ~/.config/regolith3/polybar_top/config.ini) and log output.
 exec_always --no-startup-id sh -c 'command -v polybar >/dev/null 2>&1 || exit 0; pkill -qx polybar || true; polybar -q top -c ~/.config/regolith3/polybar/config.ini & polybar -q bottom -c ~/.config/regolith3/polybar/config.ini &'
 
-exec_always --no-startup-id pkill -f i3xrocks
-exec_always --no-startup-id pkill -f i3bar
+exec_always --no-startup-id pkill -x i3xrocks
+exec_always --no-startup-id pkill -x i3bar

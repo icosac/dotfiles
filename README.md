@@ -5,8 +5,16 @@ Supports Ubuntu 18.04 / 20.04 / 22.04 / 24.04, Debian 10 and macOS, tested in CI
 
 ## Quick start
 
+On a new machine, this one-liner installs git, clones the repo (branch `dev`) into `~/dotfiles` and runs the install from there. Add `-s -- --dir DIR` to clone somewhere else:
+
 ```sh
-git clone https://github.com/icosac/dotfiles.git ~/dotfiles
+curl -fsSL https://raw.githubusercontent.com/icosac/dotfiles/dev/install.sh | bash
+```
+
+Or by hand:
+
+```sh
+git clone -b dev https://github.com/icosac/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./install.sh                          # link configs + base packages
 ./install.sh ohmyzsh neovim fonts     # ...plus any opt-in setups
@@ -72,11 +80,12 @@ Nothing personal is committed. Keep it in these files, which live only in `$HOME
 
 - **VS Code:** `settings.json` is a symlink into the repo.
   - If you use Settings Sync, turn off syncing *Settings* and *Keybindings*, or the two will fight.
-  - `config/vscode/extensions.txt` is installed by `./install.sh code`. Refresh it with `code --list-extensions > config/vscode/extensions.txt`.
+  - Extensions aren't installed by `./install.sh code`: keep *Extensions* on in Settings Sync and sign in.
 - **Neovim** goes to `/opt/nvim`, symlinked as `/usr/local/bin/nvim`.
   - On old glibc (Ubuntu 18.04) the build comes from `neovim/neovim-releases` automatically.
   - Upgrade with `FORCE=1 bash setup/neovim.sh`.
-- **ssh:** `chsh` and `ssh-keygen` need a terminal. They're skipped, with a hint, when there isn't one.
+- **ssh:** `ssh-keygen` needs a terminal. It's skipped, with a hint, when there isn't one.
+- **sudo** is asked once at the start of `./install.sh` and kept valid until it ends (the login shell change uses it too).
 - **Testing:** `tests/container-test.sh` runs the full install twice in a fresh container and checks that the second run changes nothing:
 
   ```sh

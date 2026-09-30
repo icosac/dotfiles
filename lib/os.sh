@@ -41,6 +41,7 @@ _PKG_UPDATED=0
 pkg_update() {
   [ "$_PKG_UPDATED" = 1 ] && return 0
   if is_apt; then
+    log "updating package lists"
     as_root apt-get update
   elif is_macos && have brew; then
     run brew update
@@ -53,9 +54,11 @@ pkg_install() {
   [ $# -gt 0 ] || return 0
   if is_apt; then
     pkg_update
+    log "installing packages: $*"
     as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$@"
   elif is_macos; then
     have brew || die "Homebrew is missing: run ./install.sh first"
+    log "installing packages: $*"
     run brew install "$@"
   else
     die "unsupported OS '$OS_ID' for package install"
@@ -88,6 +91,9 @@ apt_repo() {
   local name="$1" key_url="$2" line="$3"
   local keyring="/etc/apt/keyrings/$name.gpg" list="/etc/apt/sources.list.d/$name.list"
   line="${line//@KEYRING@/$keyring}"
+  if [ ! -s "$keyring" ] || [ ! -f "$list" ] || [ "$(cat "$list")" != "$line" ]; then
+    log "adding apt repository $name"
+  fi
   as_root install -d -m 0755 /etc/apt/keyrings
   if [ ! -s "$keyring" ]; then
     if [ "$DRY_RUN" = 1 ]; then
