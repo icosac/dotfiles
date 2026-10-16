@@ -155,9 +155,13 @@ link "$C/git/.gitconfig"            "$HOME/.gitconfig"
 link "$C/tmux/.tmux.conf"           "$HOME/.tmux.conf"
 link "$C/latex/.latexmkrc"          "$HOME/.latexmkrc"
 link "$C/kitty/.config/kitty"       "$HOME/.config/kitty"
+link "$C/ghostty/.config/ghostty"   "$HOME/.config/ghostty"
 link "$C/nvim/.config/nvim"         "$HOME/.config/nvim"
 link "$C/vscode/settings.json"      "$VSCODE_USER/settings.json"
 link "$C/vscode/keybindings.json"   "$VSCODE_USER/keybindings.json"
+
+# Ask for name/email/pull policy if ~/.gitconfig.local lacks them
+bash "$DOTFILES/setup/git-identity.sh" || warn "git identity not configured"
 
 # Repo-local privacy guard (blocks committing emails / home paths)
 if [ "$(git -C "$DOTFILES" config core.hooksPath || true)" != .githooks ]; then

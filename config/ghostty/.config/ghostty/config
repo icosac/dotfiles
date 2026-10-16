@@ -1,0 +1,28 @@
+# Ghostty, kept close to config/kitty. Docs: https://ghostty.org/docs/config/reference
+# Machine-specific overrides (e.g. a bigger font-size on macOS) go in
+# ~/.config/ghostty/config.local, which is loaded last and is not in the repo.
+
+command = zsh
+
+font-family = JetBrainsMono Nerd Font
+font-style = Medium
+font-style-bold = Bold
+font-style-italic = Medium Italic
+font-style-bold-italic = Bold Italic
+font-size = 10
+# Nerd Font symbols are built into Ghostty: no codepoint map needed
+
+theme = nordic
+
+confirm-close-surface = false
+cursor-style-blink = true
+
+# No sound; on bell put 🔔 in the tab title and ask for attention when unfocused
+bell-features = no-system,no-audio,title,attention
+
+# Copy Ghostty's terminfo to ssh hosts and fall back to xterm-256color (Ghostty >= 1.3)
+shell-integration-features = ssh-terminfo,ssh-env
+
+# Written at login by config/ghostty/session.sh (no titlebar/rounded corners under Regolith)
+config-file = ?session.local
+config-file = ?config.local
