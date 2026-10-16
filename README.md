@@ -44,6 +44,7 @@ Output is logged to `~/.cache/dotfiles/install.log`.
   | `config/zsh/.zshrc` (+ `zshrc.d/*.zsh`) | `~/.zshrc` |
   | `config/git/.gitconfig` | `~/.gitconfig` |
   | `config/tmux/.tmux.conf` | `~/.tmux.conf` |
+  | `config/tmux/tmux-status` (battery/git segments) | `~/.local/bin/tmux-status` |
   | `config/nvim/.config/nvim` (AstroNvim) | `~/.config/nvim` |
   | `config/kitty/.config/kitty` | `~/.config/kitty` |
   | `config/ghostty/.config/ghostty` | `~/.config/ghostty` |

@@ -23,7 +23,7 @@ fi
 if [ -d "${SYS}/wireless" ]; then
   ICON=""
 else
-  ICON=""
+  ICON="󰈀"
 fi
 
 rx1=$(<"${SYS}/statistics/rx_bytes")

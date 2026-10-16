@@ -9,18 +9,23 @@ import sys
 from typing import Dict, List
 import re
 
-# Map window classes to icons (Font Awesome / Nerd Font friendly).
+# Map window classes (lowercase) to Nerd Font v3 icons. Brand logos use the
+# Material Design set (nf-md-*): the Font Awesome ones are unreadable at bar size.
 ICON_MAP = {
-    "firefox": "",
-    "firefox_firefox": "",
-    "google-chrome": "",
-    "chromium": "",
-    "code": "",
-    "codium": "",
-    "code - insiders": "",
+    "firefox": "󰈹",
+    "firefox_firefox": "󰈹",
+    "google-chrome": "󰊯",
+    "chromium": "󰊯",
+    "code": "󰨞",
+    "codium": "󰨞",
+    "code - insiders": "󰨞",
+    "com.microsoft.vscode": "󰨞",  # newer VS Code; older ones use "Code"
+    "com.microsoft.vscodeinsiders": "󰨞",
     "gnome-terminal": "",
     "alacritty": "",
     "kitty": "",
+    "com.mitchellh.ghostty": "",
+    "ghostty": "",
     "org.gnome.nautilus": "",
     "nautilus": "",
     "thunar": "",
@@ -98,7 +103,7 @@ def main() -> int:
         # Strip any pango/markup tags and collapse whitespace.
         clean_ws = tag_re.sub("", ws)
         clean_ws = " ".join(clean_ws.split())
-        # Remove a leading duplicate number (e.g., "1: 1 :" -> "1").
+        # Remove a leading duplicate number (e.g., "1: 1 󰆢:" -> "1").
         clean_ws = f"{clean_ws.split(':')[0]}"
         
         icons = workspaces[ws]

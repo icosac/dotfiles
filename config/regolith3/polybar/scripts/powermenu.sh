@@ -14,7 +14,7 @@ rofi_command="rofi -no-config -me-select-entry MouseDPrimary -me-accept-entry Mo
 shutdown=" Shutdown"
 reboot=" Restart"
 lock=" Lock"
-logout=" Logout"
+logout="󰍃 Logout"
 
 # Confirmation
 confirm_exit() {

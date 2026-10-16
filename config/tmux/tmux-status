@@ -1,0 +1,49 @@
+#!/bin/sh
+# Segments for the tmux status bar (see .tmux.conf), each printed as a Nord pill
+# or as nothing at all when it does not apply.
+#   tmux-status battery       percentage + charging state, only if there is a battery
+#   tmux-status git <dir>     current branch (or short commit) when <dir> is in a repo
+L='' R=''
+pill() { printf '#[fg=%s]%s#[fg=%s,bg=%s]%s#[fg=%s,bg=#242933]%s ' "$1" "$L" "$2" "$1" "$3" "$1" "$R"; }
+
+battery() {
+  pct="" state=""
+  for b in /sys/class/power_supply/BAT*; do
+    [ -r "$b/capacity" ] || continue
+    pct=$(cat "$b/capacity") state=$(cat "$b/status")
+    break
+  done
+  if [ -z "$pct" ] && command -v pmset >/dev/null 2>&1; then
+    # macOS: " -InternalBattery-0 (id=...)	87%; charging; 1:23 remaining"
+    line=$(pmset -g batt | grep InternalBattery) || return 0
+    pct=$(printf '%s' "$line" | sed -E 's/.*[[:space:]]([0-9]+)%.*/\1/')
+    case $line in
+      *"; charging"*|*"; finishing charge"*) state=Charging ;;
+      *"; charged"*|*"AC attached"*)         state=Full ;;
+      *)                                     state=Discharging ;;
+    esac
+  fi
+  [ -n "$pct" ] || return 0
+
+  case $state in
+    Charging)    icon='󰂄' bg='#a3be8c' ;;
+    Discharging) icon='󰁹' bg='#3b4252'
+                 [ "$pct" -le 20 ] && bg='#bf616a' ;;
+    *)           icon='󰚥' bg='#3b4252' ;;  # Full / Not charging: on AC
+  esac
+  fg='#d8dee9'; [ "$bg" = '#3b4252' ] || fg='#242933'
+  pill "$bg" "$fg" "$icon $pct%"
+}
+
+git_branch() {
+  [ -n "${1:-}" ] || return 0
+  branch=$(git -C "$1" symbolic-ref --short -q HEAD 2>/dev/null ||
+           git -C "$1" rev-parse --short HEAD 2>/dev/null) || return 0
+  [ -n "$branch" ] && pill '#4c566a' '#eceff4' " $branch"
+}
+
+case ${1:-} in
+  battery) battery ;;
+  git)     git_branch "${2:-}" ;;
+  *)       echo "usage: tmux-status battery | git <dir>" >&2; exit 1 ;;
+esac

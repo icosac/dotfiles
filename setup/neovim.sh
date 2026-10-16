@@ -40,6 +40,24 @@ else
   if [ "$(readlink /usr/local/bin/nvim 2>/dev/null || true)" != /opt/nvim/bin/nvim ]; then
     as_root ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
   fi
+
+  # nvim-treesitter compiles parsers with the tree-sitter CLI. AstroNvim fetches it
+  # with Mason, but those release binaries need glibc >= 2.39 (Ubuntu 24.04): on older
+  # systems build it with cargo instead. Once `tree-sitter` is on PATH Mason is skipped.
+  glibc="$(getconf GNU_LIBC_VERSION | awk '{print $2}')"
+  if [ "$(printf '%s\n2.39\n' "$glibc" | sort -V | head -1)" != 2.39 ] &&
+     ! "$HOME/.local/bin/tree-sitter" --version >/dev/null 2>&1; then
+    if [ ! -x "$HOME/.cargo/bin/cargo" ]; then
+      log "installing Rust (rustup) to build tree-sitter-cli"
+      run sh -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --no-modify-path"
+    fi
+    log "building tree-sitter-cli (glibc $glibc is too old for the prebuilt one)"
+    run "$HOME/.cargo/bin/cargo" install --locked tree-sitter-cli
+    run mkdir -p "$HOME/.local/bin"
+    run ln -sf "$HOME/.cargo/bin/tree-sitter" "$HOME/.local/bin/tree-sitter"
+    # Drop a broken copy Mason may already have installed (its bin dir comes first in nvim's PATH)
+    run rm -rf "$HOME/.local/share/nvim/mason/packages/tree-sitter-cli" "$HOME/.local/share/nvim/mason/bin/tree-sitter"
+  fi
 fi
 
 if [ -L "$HOME/.config/nvim" ]; then

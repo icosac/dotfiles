@@ -2,6 +2,7 @@
   "AstroNvim": { "branch": "main", "commit": "aa0545fc8357009fc8a67e6cd93e7f8544e3aba9" },
   "LuaSnip": { "branch": "master", "commit": "642b0c595e11608b4c18219e93b88d7637af27bc" },
   "aerial.nvim": { "branch": "master", "commit": "645d108a5242ec7b378cbe643eb6d04d4223f034" },
+  "astrocommunity": { "branch": "main", "commit": "41ae4db2581b22d192c96c7400fda3ef8825dcf7" },
   "astrocore": { "branch": "main", "commit": "4977992a80f1279afad77eec9fcf94680e1468f8" },
   "astrolsp": { "branch": "main", "commit": "0ca1ed9a2536c9eaf78d5f3e7b92bda0dbd404eb" },
   "astrotheme": { "branch": "main", "commit": "744e520fcb300980a4e5ea32c508128c790ecc73" },
@@ -10,6 +11,7 @@
   "blink.cmp": { "branch": "main", "commit": "78336bc89ee5365633bcf754d93df01678b5c08f" },
   "blink.compat": { "branch": "main", "commit": "2ed6d9a28b07fa6f3bface818470605f8896408c" },
   "cmp-dap": { "branch": "master", "commit": "ea92773e84c0ad3288c3bc5e452ac91559669087" },
+  "copilot.lua": { "branch": "master", "commit": "3f1f8cc30783ca905224eadebaa6ddfd73c28828" },
   "friendly-snippets": { "branch": "main", "commit": "6cd7280adead7f586db6fccbd15d2cac7e2188b9" },
   "gitsigns.nvim": { "branch": "main", "commit": "a462f416e2ce4744531c6256252dee99a7d34a83" },
   "guess-indent.nvim": { "branch": "main", "commit": "84a4987ff36798c2fc1169cbaff67960aed9776f" },
@@ -41,5 +43,6 @@
   "snacks.nvim": { "branch": "main", "commit": "e6fd58c82f2f3fcddd3fe81703d47d6d48fc7b9f" },
   "todo-comments.nvim": { "branch": "main", "commit": "31e3c38ce9b29781e4422fc0322eb0a21f4e8668" },
   "toggleterm.nvim": { "branch": "main", "commit": "50ea089fc548917cc3cc16b46a8211833b9e3c7c" },
+  "vim-visual-multi": { "branch": "master", "commit": "a6975e7c1ee157615bbc80fc25e4392f71c344d4" },
   "which-key.nvim": { "branch": "main", "commit": "fcbf4eea17cb299c02557d576f0d568878e354a4" }
 }
