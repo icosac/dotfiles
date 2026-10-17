@@ -62,4 +62,12 @@ bash "$DOTFILES/setup/fonts.sh"
 link "$DOTFILES/config/regolith3" "$HOME/.config/regolith3"
 # Xresources points the wallpaper/lockscreen at ~/.background.png
 link "$DOTFILES/config/regolith3/assets/IMG_2882.png" "$HOME/.background.png"
+
+# Wider, Spotlight-like ilia launcher (styled by config/regolith3/ilia/style.css)
+if have gsettings && gsettings list-schemas | grep -qx org.regolith-linux.ilia; then
+  run gsettings set org.regolith-linux.ilia window-width 680
+  run gsettings set org.regolith-linux.ilia window-height 440
+  ok "ilia launcher size set"
+fi
+
 ok "Regolith ready (log out and pick the Regolith session)"

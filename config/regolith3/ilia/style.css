@@ -1,0 +1,88 @@
+/* ilia (Win+Space launcher and the other ilia dialogs), styled after macOS Spotlight:
+   frosted dark panel, big borderless search text, a hairline, a solid blue selection.
+   picom adds the blur, translucency and 6px corners (../picom/config, class "Ilia");
+   the wider window comes from gsettings org.regolith-linux.ilia (setup/regolith.sh).
+   Selected through ilia.stylesheet in ../Xresources. */
+
+window {
+  background-color: #1f232b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-family: "Iosevka Nerd Font Propo";
+  color: #eceff4;
+}
+
+.root_box {
+  margin: 0;
+}
+
+/* Search: large text, no box, hairline underneath */
+.filter_entry {
+  min-height: 52px;
+  min-width: 320px;
+  margin: 0;
+  padding: 0 20px;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #eceff4;
+  caret-color: #88c0d0;
+  font-size: 22px;
+}
+.filter_entry selection {
+  background-color: rgba(94, 129, 172, 0.6);
+}
+
+.notebook,
+.notebook > stack,
+.notebook > header {
+  border: none;
+  background: transparent;
+}
+
+/* Results */
+.scrolled_window {
+  border: none;
+  background: transparent;
+  padding: 6px 8px;
+}
+.item_view {
+  background-color: transparent;
+  color: #d8dee9;
+  font-size: 15px;
+  -GtkTreeView-vertical-separator: 10;
+  -GtkTreeView-horizontal-separator: 12;
+}
+.item_view,
+.item_view:focus,
+.item_view:selected:focus {
+  outline-style: none;
+}
+.item_view:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+.item_view:selected,
+.item_view:selected:hover {
+  background-color: #5e81ac;
+  color: #ffffff;
+}
+
+scrollbar,
+scrollbar trough {
+  background: transparent;
+  border: none;
+}
+scrollbar slider {
+  min-width: 4px;
+  border-radius: 2px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.keybindings {
+  font-family: "Iosevka Nerd Font Propo";
+}
+.help_heading {
+  color: #88c0d0;
+  font-weight: bold;
+}

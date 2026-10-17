@@ -1,0 +1,81 @@
+/* Spotlight-like rofi theme (Win+Space, see launcher.sh). Nord colors, real
+   transparency; picom blurs what is behind it and skips shadow/corner clipping for
+   rofi (../picom/config, class "Rofi"). */
+
+* {
+  font:             "Iosevka Nerd Font Propo 13";
+  fg:               #eceff4;
+  fg-dim:           #8f9bb3;
+  accent:           #5e81ac;
+  background-color: transparent;
+  text-color:       @fg;
+}
+
+window {
+  location:         center;
+  anchor:           center;
+  y-offset:         -110px;
+  width:            680px;
+  transparency:     "real";
+  background-color: #1f232bb3;
+  border:           1px;
+  border-color:     #ffffff22;
+  border-radius:    12px;   /* same as the eww bar islands */
+}
+
+mainbox {
+  children: [ inputbar, listview ];
+  spacing:  0;
+}
+
+inputbar {
+  children:     [ textbox-search, entry ];
+  spacing:      14px;
+  padding:      16px 20px;
+  border:       0 0 1px 0;
+  border-color: #ffffff1a;
+}
+textbox-search {
+  expand:         false;
+  str:            "";
+  font:           "Iosevka Nerd Font Propo 18";
+  text-color:     @fg-dim;
+  vertical-align: 0.5;
+}
+entry {
+  font:              "Iosevka Nerd Font Propo 20";
+  placeholder:       "Search";
+  placeholder-color: @fg-dim;
+  vertical-align:    0.5;
+  cursor:            text;
+}
+
+listview {
+  lines:        8;
+  columns:      1;
+  fixed-height: false;
+  scrollbar:    false;
+  padding:      8px;
+  spacing:      2px;
+}
+element {
+  padding:       8px 12px;
+  spacing:       14px;
+  border-radius: 8px;
+  cursor:        pointer;
+}
+element normal.normal,
+element alternate.normal { background-color: transparent; }
+element selected.normal {
+  background-color: @accent;
+  text-color:       #ffffff;
+}
+element-icon {
+  size:   28px;
+  cursor: inherit;
+}
+element-text {
+  vertical-align: 0.5;
+  text-color:     inherit;
+  cursor:         inherit;
+}

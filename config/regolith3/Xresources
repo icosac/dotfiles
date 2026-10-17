@@ -2,6 +2,11 @@ regolith.wallpaper.file:  ~/.background.png
 regolith.lockscreen.wallpaper.file:  ~/.background.png
 regolith.look.path: /usr/share/regolith-look/nord
 
+! Other ilia dialogs (Win+Shift+Space, Win+Ctrl+Space...): Nord style matching the eww bars
+ilia.stylesheet: ~/.config/regolith3/ilia/style.css
+! Win+Space: rofi, Spotlight-like (rofi/spotlight.rasi)
+wm.program.launcher.app: ~/.config/regolith3/rofi/launcher.sh
+
 i3xrocks.label.cpu: 
 i3xrocks.label.wired: 
 i3xrocks.label.wifi: 

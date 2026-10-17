@@ -1,0 +1,105 @@
+diff --git a/src/calc.c b/src/calc.c
+index 952def2..8f5ed67 100644
+--- a/src/calc.c
++++ b/src/calc.c
+@@ -315,6 +315,28 @@ static gboolean is_error_string(char* str)
+ }
+ 
+ 
++// dotfiles patch: in rofi's combi mode (apps + files + calc in one list) only show
++// the result row when the input looks like a calculation. qalc happily reads plain
++// words as units ("fire" -> 0), so require a digit plus an operator, parenthesis or
++// a unit conversion ("5 km to miles").
++static gboolean looks_like_math(const char* input)
++{
++    if (input == NULL || strpbrk(input, "0123456789") == NULL) {
++        return FALSE;
++    }
++    if (strpbrk(input, "+-*/^%()=!") != NULL) {
++        return TRUE;
++    }
++    return strstr(input, " to ") != NULL || strstr(input, " in ") != NULL;
++}
++
++static gboolean has_answer(const CALCModePrivateData* pd)
++{
++    return looks_like_math(pd->previous_input) && pd->last_result != NULL &&
++           *pd->last_result && !is_error_string(pd->last_result);
++}
++
++
+ static int get_real_history_index(GPtrArray* history, unsigned int selected_line)
+ {
+     return history->len - selected_line;
+@@ -505,16 +527,59 @@ static char* calc_get_display_value(const Mode* sw, unsigned int selected_line,
+         if (find_arg(NO_HISTORY_OPTION) == -1)
+             return g_strdup("Add to history");
+         else
+-            return g_strdup("");
++            return g_strdup(has_answer(pd) ? pd->last_result : "");  // dotfiles patch
+     }
+     unsigned int real_index = get_real_history_index(pd->history, selected_line);
+     return g_strdup(g_ptr_array_index(pd->history, real_index));
+ }
+ 
+ 
+-static int calc_token_match(G_GNUC_UNUSED const Mode* sw, G_GNUC_UNUSED rofi_int_matcher** tokens, G_GNUC_UNUSED unsigned int index)
++// dotfiles patch: in combi mode rofi never calls this mode's preprocess_input, so
++// read the typed text from the view and evaluate it here, synchronously (qalc takes
++// ~60ms, and only input that looks like math is evaluated). Filtering may run on
++// worker threads, hence the lock and no main-loop callbacks.
++typedef struct RofiViewState RofiViewState;
++extern RofiViewState *rofi_view_get_active(void);
++extern const char *rofi_view_get_user_input(const RofiViewState *state);
++static GMutex combi_lock;
++
++static void evaluate_sync(CALCModePrivateData* pd, const char* input)
+ {
+-    return TRUE;
++    char *qalc_binary = "qalc";
++    if (find_arg(QALC_BINARY_OPTION) >= 0) {
++        find_arg_str(QALC_BINARY_OPTION, &qalc_binary);
++    }
++    const char *argv[] = { qalc_binary, "-s", "update_exchange_rates 1days",
++                           find_arg(TERSE_OPTION) > -1 ? "-t" : input,
++                           find_arg(TERSE_OPTION) > -1 ? input : NULL, NULL };
++    gchar *out = NULL;
++    g_spawn_sync(NULL, (gchar **)argv, NULL, G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
++                 NULL, NULL, &out, NULL, NULL, NULL);
++    g_free(pd->last_result);
++    pd->last_result = g_strndup(out ? out : "", out ? strcspn(out, "\n") : 0);
++    g_free(out);
++    g_free(pd->previous_input);
++    pd->previous_input = g_strdup(input);
++}
++
++static int calc_token_match(const Mode* sw, G_GNUC_UNUSED rofi_int_matcher** tokens, unsigned int index)
++{
++    if (index != 0) {
++        return TRUE;  // history rows (unused with -no-history)
++    }
++    CALCModePrivateData* pd = (CALCModePrivateData*)mode_get_private_data(sw);
++    RofiViewState *state = rofi_view_get_active();
++    const char *input = state ? rofi_view_get_user_input(state) : NULL;
++    if (!looks_like_math(input)) {
++        return FALSE;
++    }
++    g_mutex_lock(&combi_lock);
++    if (pd->previous_input == NULL || strcmp(input, pd->previous_input) != 0) {
++        evaluate_sync(pd, input);
++    }
++    gboolean ok = has_answer(pd);
++    g_mutex_unlock(&combi_lock);
++    return ok;
+ }
+ 
+ // It's a hacky way of making rofi show new window titles.
+@@ -628,7 +693,7 @@ static char *calc_get_message ( const Mode *sw )
+ Mode mode =
+ {
+     .abi_version        = ABI_VERSION,
+-    .name               = "calc",
++    .name               = "qcalc",  // dotfiles patch: distinct from a system-wide rofi-calc
+     .cfg_name_key       = "display-calc",
+     ._init              = calc_mode_init,
+     ._get_num_entries   = calc_mode_get_num_entries,

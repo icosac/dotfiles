@@ -102,7 +102,7 @@
     (box :space-evenly false :halign "start"
       (box :class "island"
         (item :icon "󰕰" :class "accent" :tooltip "Applications"
-              :onclick "~/.config/regolith3/polybar/scripts/launcher.sh &")))
+              :onclick "~/.config/regolith3/rofi/launcher.sh &")))
     (box :halign "center"
       (eventbox :class "clickable" :onclick "~/.local/bin/eww -c ~/.config/regolith3/eww update calendar_open=${!calendar_open} && ~/.local/bin/eww -c ~/.config/regolith3/eww ${calendar_open ? 'close' : 'open'} calendar"
         (box :class "island clock" :space-evenly false :spacing 10
