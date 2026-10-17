@@ -1,0 +1,50 @@
+// Colors follow the Polybar bottom bar (polybar/colors.ini)
+$bg: #141c21;
+$fg: #ffffff;
+$primary: #e53935;
+$red: #ff5250;
+$yellow: #fdd835;
+$dim: #8a949b;
+
+* {
+  all: unset;
+  font-family: "Iosevka Nerd Font Propo";
+  font-size: 13px; // 10px Polybar pixelsize, in GTK's points-ish units
+}
+
+.bar {
+  background-color: $bg;
+  color: $fg;
+  border-top: 2px solid $primary;
+  padding: 0 12px;
+}
+
+.stat .icon { font-size: 14px; }
+.warn, .muted { color: $red; }
+
+tooltip {
+  background-color: $bg;
+  border: 1px solid $primary;
+  padding: 4px 8px;
+}
+
+.workspace {
+  padding: 0 6px;
+  border-radius: 4px;
+  .num { color: $dim; }
+  &.focused .num { color: $fg; font-weight: bold; }
+}
+.app {
+  padding: 1px 2px;
+  border-bottom: 2px solid transparent;
+  &.focused { border-bottom-color: $primary; }
+}
+
+.slider {
+  min-width: 90px;
+  trough {
+    min-height: 2px;
+    background-color: $dim;
+    highlight { background-color: $fg; }
+  }
+}

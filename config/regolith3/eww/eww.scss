@@ -1,50 +1,116 @@
-// Colors follow the Polybar bottom bar (polybar/colors.ini)
-$bg: #141c21;
-$fg: #ffffff;
-$primary: #e53935;
-$red: #ff5250;
-$yellow: #fdd835;
-$dim: #8a949b;
+// Nord, same palette as kitty / Ghostty / tmux
+$bg: rgba(36, 41, 51, 0.88);     // #242933
+$bg-hover: rgba(76, 86, 106, 0.55);
+$border: rgba(216, 222, 233, 0.08);
+$fg: #d8dee9;
+$dim: #7b88a1;
+$frost: #88c0d0;
+$blue: #81a1c1;
+$green: #a3be8c;
+$yellow: #ebcb8b;
+$red: #bf616a;
+$track: rgba(216, 222, 233, 0.12);
 
 * {
   all: unset;
   font-family: "Iosevka Nerd Font Propo";
-  font-size: 13px; // 10px Polybar pixelsize, in GTK's points-ish units
-}
-
-.bar {
-  background-color: $bg;
+  font-size: 13px;
   color: $fg;
-  border-top: 2px solid $primary;
-  padding: 0 12px;
 }
 
-.stat .icon { font-size: 14px; }
-.warn, .muted { color: $red; }
+window { background-color: transparent; }
 
-tooltip {
+.bar { padding: 3px 4px; }
+
+.island {
   background-color: $bg;
-  border: 1px solid $primary;
-  padding: 4px 8px;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 0 14px;
 }
 
+.icon, .ring-icon { font-size: 14px; }
+.ring-icon { font-size: 10px; }
+.accent, .accent .icon { color: $frost; }
+.off .icon { color: $dim; }
+.warn, .warn .icon, .warn .value, .warn .ring-icon { color: $red; }
+.charging .icon { color: $green; }
+.power .icon { color: $red; }
+
+// Hover feedback on everything clickable
+.clickable > * { border-radius: 8px; padding: 0 4px; transition: background-color 200ms ease; }
+.clickable:hover > * { background-color: $bg-hover; }
+.clickable.static:hover > * { background-color: transparent; }
+
+// Ring gauges
+.ring {
+  min-width: 22px;
+  min-height: 22px;
+  color: $frost;
+  background-color: $track;
+}
+.ring-item:nth-child(2) .ring { color: $blue; }
+.ring-item:nth-child(3) .ring { color: #b48ead; }
+.ring-item:nth-child(4) .ring { color: $yellow; }
+.ring-item.warn .ring { color: $red; }
+
+// Workspaces + app icons
+.workspaces { padding: 0 6px; }
 .workspace {
-  padding: 0 6px;
-  border-radius: 4px;
-  .num { color: $dim; }
-  &.focused .num { color: $fg; font-weight: bold; }
+  padding: 2px 6px;
+  border-radius: 9px;
+  transition: background-color 200ms ease;
+  .num { color: $dim; font-weight: bold; padding: 0 6px; }
+  &.focused {
+    background-color: rgba(136, 192, 208, 0.16);
+    .num { color: $frost; }
+  }
 }
-.app {
-  padding: 1px 2px;
+.app > * {
+  padding: 3px 5px;
   border-bottom: 2px solid transparent;
-  &.focused { border-bottom-color: $primary; }
+  border-radius: 6px;
+}
+.app.focused > * {
+  border-bottom-color: $frost;
+  background-color: rgba(136, 192, 208, 0.12);
 }
 
+// Clock
+.clock { padding: 0 18px; }
+.time { font-weight: bold; }
+.sep { color: $dim; }
+
+// Volume
+.volume.muted .icon { color: $red; }
 .slider {
   min-width: 90px;
   trough {
-    min-height: 2px;
-    background-color: $dim;
-    highlight { background-color: $fg; }
+    min-height: 4px;
+    border-radius: 2px;
+    background-color: $track;
+    highlight { border-radius: 2px; background-color: $frost; }
   }
+}
+.volume.muted .slider trough highlight { background-color: $dim; }
+
+// Tooltips and calendar popup
+tooltip {
+  background-color: rgba(36, 41, 51, 0.95);
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+.popup {
+  background-color: rgba(36, 41, 51, 0.95);
+  border: 1px solid $border;
+  border-radius: 14px;
+  padding: 12px;
+}
+.cal {
+  padding: 4px;
+  &.header { color: $frost; font-weight: bold; }
+  &:selected { background-color: $frost; color: #242933; border-radius: 6px; }
+  &.highlight { color: $blue; font-weight: bold; }
+  &:indeterminate { color: $dim; }
 }

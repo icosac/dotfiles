@@ -1,6 +1,5 @@
-# Top bar: Polybar. Bottom bar: eww or Polybar, see ~/.config/regolith3/bottom-bar.sh
-exec_always --no-startup-id sh -c 'command -v polybar >/dev/null 2>&1 || exit 0; pkill -qf "^polybar .*top " || true; polybar -q top -c ~/.config/regolith3/polybar/config.ini &'
-exec_always --no-startup-id ~/.config/regolith3/bottom-bar.sh
+# Top and bottom bars (eww or Polybar), see ~/.config/regolith3/bars.sh
+exec_always --no-startup-id ~/.config/regolith3/bars.sh
 
 exec_always --no-startup-id pkill -x i3xrocks
 exec_always --no-startup-id pkill -x i3bar

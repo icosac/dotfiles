@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# desc: eww widgets (bottom bar with real app icons for Regolith), built from source; FORCE=1 to rebuild
+# desc: eww widgets (Regolith top/bottom bars, real app icons), built from source; FORCE=1 to rebuild
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
@@ -34,4 +34,4 @@ fi
 
 # Bar config lives in config/regolith3/eww; python3-gi resolves the app icons
 have python3 && python3 -c 'import gi' 2>/dev/null || pkg_install python3-gi
-log "switch bottom bars with ~/.config/regolith3/bottom-bar.sh {eww|polybar}"
+log "switch bars with ~/.config/regolith3/bars.sh {eww|eww-classic|polybar}"

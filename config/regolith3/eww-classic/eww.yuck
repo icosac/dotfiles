@@ -1,0 +1,69 @@
+;; eww bottom bar for Regolith: same modules as the Polybar bottom bar, but the
+;; workspace list shows each app's real icon (like a dock). Launch/switch bars with
+;; ~/.config/regolith3/bars.sh {eww|eww-classic|polybar}
+
+(deflisten keyboard :initial "" "scripts/keyboard.py")
+(defpoll temp :interval "2s" "echo $(( $(cat /sys/class/thermal/thermal_zone0/temp) / 1000 ))")
+(defpoll bluetooth :interval "5s" "~/.config/regolith3/polybar/scripts/bt-status.sh")
+(deflisten net :initial '{"wired": {"ip": ""}, "wifi": {"ip": ""}}' "scripts/net.sh")
+(deflisten volume :initial '{"vol": 0, "muted": false}' "scripts/volume.sh")
+(deflisten workspaces :initial "[]" "scripts/workspaces.py")
+
+(defwidget stat [icon text ?class ?onclick]
+  (eventbox :onclick {onclick ?: ""} :cursor {onclick == "" ? "default" : "pointer"}
+    (box :class "stat ${class}" :space-evenly false :spacing 5
+      (label :class "icon" :text icon)
+      (label :text text))))
+
+(defwidget left []
+  (box :space-evenly false :halign "start" :spacing 18
+    (stat :icon "󰻠" :text "${round(EWW_CPU.avg, 0)}%")
+    (stat :icon "󰍛" :text "${round(EWW_RAM.used_mem_perc, 0)}%")
+    (stat :icon "󰋊" :text "${round(EWW_DISK['/'].free / 1073741824, 2)} GB")
+    (stat :icon "" :text "${temp}°C" :class {temp >= 65 ? "warn" : ""})
+    (stat :icon {net.wired.ip == "" ? "󰈂" : "󰈀"}
+          :text {net.wired.ip == "" ? "Disconnected" : "${net.wired.ip} 󰇚 ${net.wired.down} 󰕒 ${net.wired.up}"}
+          :onclick "gnome-control-center network &")
+    (stat :icon {net.wifi.ip == "" ? "󰖪" : "󰖩"}
+          :text {net.wifi.ip == "" ? "Disconnected" : "${net.wifi.ip} 󰇚 ${net.wifi.down} 󰕒 ${net.wifi.up}"}
+          :onclick "gnome-control-center wifi &")
+    (eventbox :onclick "gnome-control-center bluetooth &" :cursor "pointer"
+      (label :class "stat" :text bluetooth))))
+
+(defwidget workspace-apps []
+  (box :class "workspaces" :space-evenly false :halign "center" :spacing 6
+    (for ws in workspaces
+      (box :class "workspace ${ws.focused ? 'focused' : ''}" :space-evenly false :spacing 4
+        (eventbox :onclick "i3-msg workspace number ${ws.num} >/dev/null" :cursor "pointer"
+          (label :class "num" :text "${ws.num}"))
+        (for app in {ws.apps}
+          (eventbox :onclick "i3-msg '[con_id=${app.id}] focus' >/dev/null" :cursor "pointer" :tooltip {app.name}
+            (image :class "app ${app.focused ? 'focused' : ''}" :path {app.icon} :image-width 16 :image-height 16)))))))
+
+(defwidget right []
+  (box :space-evenly false :halign "end" :spacing 18
+    (stat :icon "󰌌" :text {strlength(keyboard) > 0 ? keyboard : "?"})
+    ;; The overlay's top layer is an empty eventbox spanning the icon and the
+    ;; slider, so clicking (mute) and scrolling (volume) work anywhere on them.
+    (overlay
+      (box :class "stat volume ${volume.muted ? 'muted' : ''}" :space-evenly false :spacing 6
+        (label :class "icon" :text {volume.muted ? "󰝟" : volume.vol < 34 ? "󰕿" : volume.vol < 67 ? "󰖀" : "󰕾"})
+        (scale :class "slider" :min 0 :max 101 :value {volume.vol} :active false))
+      (eventbox :onscroll "pactl set-sink-volume @DEFAULT_SINK@ $([ {} = up ] && echo +5% || echo -5%)"
+                :onclick "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+                :cursor "pointer"))))
+
+(defwidget bar []
+  (centerbox :class "bar"
+    (left)
+    (workspace-apps)
+    (right)))
+
+(defwindow bottom
+  :monitor 0
+  :windowtype "dock"
+  :stacking "fg"
+  :wm-ignore false
+  :geometry (geometry :x "0%" :y "0%" :width "100%" :height "26px" :anchor "bottom center")
+  :reserve (struts :side "bottom" :distance "28px")
+  (bar))

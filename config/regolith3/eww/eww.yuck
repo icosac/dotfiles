@@ -1,69 +1,145 @@
-;; eww bottom bar for Regolith: same modules as the Polybar bottom bar, but the
-;; workspace list shows each app's real icon (like a dock). Launch/switch bars with
-;; ~/.config/regolith3/bottom-bar.sh {eww|polybar}
+;; Regolith bars in eww, "islands" style: rounded translucent groups floating over
+;; a transparent window, Nord colors. Top: launcher | clock (click: calendar) | battery, power.
+;; Bottom: system rings, network | workspaces with real app icons | keyboard, volume.
+;; Switch bar sets with ~/.config/regolith3/bars.sh {eww|eww-classic|polybar}
 
-(deflisten keyboard :initial "" "scripts/keyboard.py")
+;; ---------------------------------------------------------------- data
+(defpoll time :interval "1s" "date '+%H:%M:%S'")
+(defpoll date :interval "60s" "date '+%a %d %b %Y'")
 (defpoll temp :interval "2s" "echo $(( $(cat /sys/class/thermal/thermal_zone0/temp) / 1000 ))")
 (defpoll bluetooth :interval "5s" "~/.config/regolith3/polybar/scripts/bt-status.sh")
+(deflisten keyboard :initial "" "scripts/keyboard.py")
 (deflisten net :initial '{"wired": {"ip": ""}, "wifi": {"ip": ""}}' "scripts/net.sh")
 (deflisten volume :initial '{"vol": 0, "muted": false}' "scripts/volume.sh")
+(deflisten battery :initial '{"present": false, "pct": 0, "state": ""}' "scripts/battery.sh")
 (deflisten workspaces :initial "[]" "scripts/workspaces.py")
+(defvar calendar_open false)
 
-(defwidget stat [icon text ?class ?onclick]
-  (eventbox :onclick {onclick ?: ""} :cursor {onclick == "" ? "default" : "pointer"}
-    (box :class "stat ${class}" :space-evenly false :spacing 5
+;; ---------------------------------------------------------------- building blocks
+;; Ring gauge with an icon inside and the value next to it; exact numbers on hover
+(defwidget ring [value icon text tooltip ?class]
+  (box :class "ring-item ${class}" :space-evenly false :spacing 6 :tooltip tooltip
+    (circular-progress :class "ring" :value value :thickness 3 :start-at 75 :clockwise true :width 24 :height 24
+      (label :class "ring-icon" :text icon))
+    (label :class "value" :text text)))
+
+(defwidget item [icon ?text ?class ?tooltip ?onclick]
+  (eventbox :class "clickable ${onclick == '' ? 'static' : ''}" :onclick {onclick ?: ""} :tooltip {tooltip ?: ""}
+    (box :class "item ${class}" :space-evenly false :spacing 6
       (label :class "icon" :text icon)
-      (label :text text))))
+      (label :class "value" :visible {(text ?: "") != ""} :text {text ?: ""}))))
 
-(defwidget left []
-  (box :space-evenly false :halign "start" :spacing 18
-    (stat :icon "󰻠" :text "${round(EWW_CPU.avg, 0)}%")
-    (stat :icon "󰍛" :text "${round(EWW_RAM.used_mem_perc, 0)}%")
-    (stat :icon "󰋊" :text "${round(EWW_DISK['/'].free / 1073741824, 2)} GB")
-    (stat :icon "" :text "${temp}°C" :class {temp >= 65 ? "warn" : ""})
-    (stat :icon {net.wired.ip == "" ? "󰈂" : "󰈀"}
-          :text {net.wired.ip == "" ? "Disconnected" : "${net.wired.ip} 󰇚 ${net.wired.down} 󰕒 ${net.wired.up}"}
+;; ---------------------------------------------------------------- bottom bar
+(defwidget system []
+  (box :class "island" :space-evenly false :spacing 14
+    (ring :value {EWW_CPU.avg} :icon "󰻠" :text "${round(EWW_CPU.avg, 0)}%"
+          :tooltip "CPU ${round(EWW_CPU.avg, 1)}%")
+    (ring :value {EWW_RAM.used_mem_perc} :icon "󰍛" :text "${round(EWW_RAM.used_mem_perc, 0)}%"
+          :tooltip "Memory ${round(EWW_RAM.used_mem / 1073741824, 1)} / ${round(EWW_RAM.total_mem / 1073741824, 1)} GB")
+    (ring :value {EWW_DISK['/'].used_perc} :icon "󰋊" :text "${round(EWW_DISK['/'].free / 1073741824, 1)} GB"
+          :tooltip "Disk /: ${round(EWW_DISK['/'].free / 1073741824, 1)} GB free of ${round(EWW_DISK['/'].total / 1073741824, 0)} GB")
+    (ring :value {temp} :icon "" :text "${temp}°C" :class {temp >= 65 ? "warn" : ""}
+          :tooltip "CPU temperature ${temp}°C")))
+
+(defwidget network []
+  (box :class "island" :space-evenly false :spacing 14
+    (item :icon {net.wired.ip == "" ? "󰈂" : "󰈀"}
+          :class {net.wired.ip == "" ? "off" : ""}
+          :text {net.wired.ip == "" ? "" : "${net.wired.ip}  󰇚 ${net.wired.down}  󰕒 ${net.wired.up}"}
+          :tooltip {net.wired.ip == "" ? "Ethernet disconnected" : "Ethernet"}
           :onclick "gnome-control-center network &")
-    (stat :icon {net.wifi.ip == "" ? "󰖪" : "󰖩"}
-          :text {net.wifi.ip == "" ? "Disconnected" : "${net.wifi.ip} 󰇚 ${net.wifi.down} 󰕒 ${net.wifi.up}"}
+    (item :icon {net.wifi.ip == "" ? "󰖪" : "󰖩"}
+          :class {net.wifi.ip == "" ? "off" : ""}
+          :text {net.wifi.ip == "" ? "" : "${net.wifi.ip}  󰇚 ${net.wifi.down}  󰕒 ${net.wifi.up}"}
+          :tooltip {net.wifi.ip == "" ? "Wi-Fi disconnected" : "Wi-Fi"}
           :onclick "gnome-control-center wifi &")
-    (eventbox :onclick "gnome-control-center bluetooth &" :cursor "pointer"
-      (label :class "stat" :text bluetooth))))
+    (eventbox :class "clickable" :onclick "gnome-control-center bluetooth &" :tooltip "Bluetooth"
+      (label :class "item" :text bluetooth))))
 
 (defwidget workspace-apps []
-  (box :class "workspaces" :space-evenly false :halign "center" :spacing 6
+  (box :class "island workspaces" :space-evenly false :spacing 4
     (for ws in workspaces
-      (box :class "workspace ${ws.focused ? 'focused' : ''}" :space-evenly false :spacing 4
-        (eventbox :onclick "i3-msg workspace number ${ws.num} >/dev/null" :cursor "pointer"
+      (box :class "workspace ${ws.focused ? 'focused' : ''}" :space-evenly false :spacing 2
+        (eventbox :class "clickable" :onclick "i3-msg workspace number ${ws.num} >/dev/null"
           (label :class "num" :text "${ws.num}"))
         (for app in {ws.apps}
-          (eventbox :onclick "i3-msg '[con_id=${app.id}] focus' >/dev/null" :cursor "pointer" :tooltip {app.name}
-            (image :class "app ${app.focused ? 'focused' : ''}" :path {app.icon} :image-width 16 :image-height 16)))))))
+          (eventbox :class "clickable app ${app.focused ? 'focused' : ''}" :tooltip {app.name}
+                    :onclick "i3-msg '[con_id=${app.id}] focus' >/dev/null"
+            (image :path {app.icon} :image-width 18 :image-height 18)))))))
 
-(defwidget right []
-  (box :space-evenly false :halign "end" :spacing 18
-    (stat :icon "󰌌" :text {strlength(keyboard) > 0 ? keyboard : "?"})
-    ;; The overlay's top layer is an empty eventbox spanning the icon and the
-    ;; slider, so clicking (mute) and scrolling (volume) work anywhere on them.
-    (overlay
-      (box :class "stat volume ${volume.muted ? 'muted' : ''}" :space-evenly false :spacing 6
+(defwidget controls []
+  (box :class "island" :space-evenly false :spacing 14
+    (item :icon "󰌌" :text {keyboard != "" ? keyboard : "?"} :tooltip "Keyboard layout (Alt+Space to switch)")
+    ;; Top layer of the overlay catches clicks (mute) and scrolling (volume) over icon and slider
+    (overlay :tooltip {volume.muted ? "Muted" : "Volume ${volume.vol}%"}
+      (box :class "item volume ${volume.muted ? 'muted' : ''}" :space-evenly false :spacing 8
         (label :class "icon" :text {volume.muted ? "󰝟" : volume.vol < 34 ? "󰕿" : volume.vol < 67 ? "󰖀" : "󰕾"})
         (scale :class "slider" :min 0 :max 101 :value {volume.vol} :active false))
-      (eventbox :onscroll "pactl set-sink-volume @DEFAULT_SINK@ $([ {} = up ] && echo +5% || echo -5%)"
-                :onclick "pactl set-sink-mute @DEFAULT_SINK@ toggle"
-                :cursor "pointer"))))
+      (eventbox :class "clickable"
+                :onscroll "pactl set-sink-volume @DEFAULT_SINK@ $([ {} = up ] && echo +5% || echo -5%)"
+                :onclick "pactl set-sink-mute @DEFAULT_SINK@ toggle"))))
 
-(defwidget bar []
+(defwidget bottom-bar []
   (centerbox :class "bar"
-    (left)
-    (workspace-apps)
-    (right)))
+    (box :space-evenly false :halign "start" :spacing 5 (system) (network))
+    (box :halign "center" (workspace-apps))
+    (box :space-evenly false :halign "end" (controls))))
+
+;; ---------------------------------------------------------------- top bar
+(defwidget battery-item []
+  (box :visible {battery.present}
+   (item
+        :icon {battery.state == "Charging" ? "󰂄" :
+               battery.state != "Discharging" ? "󰚥" :
+               battery.pct < 10 ? "󰁺" : battery.pct < 30 ? "󰁼" : battery.pct < 50 ? "󰁾" :
+               battery.pct < 70 ? "󰂀" : battery.pct < 90 ? "󰂂" : "󰁹"}
+        :class {battery.state == "Charging" ? "charging" : battery.state == "Discharging" && battery.pct <= 20 ? "warn" : ""}
+        :text "${battery.pct}%"
+        :tooltip {battery.state == "Charging" ? "Charging" : battery.state == "Discharging" ? "On battery" : "Plugged in"})))
+
+(defwidget top-bar []
+  (centerbox :class "bar"
+    (box :space-evenly false :halign "start"
+      (box :class "island"
+        (item :icon "󰕰" :class "accent" :tooltip "Applications"
+              :onclick "~/.config/regolith3/polybar/scripts/launcher.sh &")))
+    (box :halign "center"
+      (eventbox :class "clickable" :onclick "~/.local/bin/eww -c ~/.config/regolith3/eww update calendar_open=${!calendar_open} && ~/.local/bin/eww -c ~/.config/regolith3/eww ${calendar_open ? 'close' : 'open'} calendar"
+        (box :class "island clock" :space-evenly false :spacing 10
+          (label :class "icon accent" :text "󰥔")
+          (label :class "time" :text time)
+          (label :class "sep" :text "·")
+          (label :class "value" :text date))))
+    (box :space-evenly false :halign "end"
+      (box :class "island" :space-evenly false :spacing 14
+        (battery-item)
+        (item :icon "" :class "power" :tooltip "Power menu"
+              :onclick "~/.config/regolith3/polybar/scripts/powermenu.sh &")))))
+
+;; ---------------------------------------------------------------- windows
+(defwindow top
+  :monitor 0
+  :windowtype "dock"
+  :stacking "fg"
+  :wm-ignore false
+  :geometry (geometry :x "0%" :y "0%" :width "100%" :height "36px" :anchor "top center")
+  :reserve (struts :side "top" :distance "36px")
+  (top-bar))
 
 (defwindow bottom
   :monitor 0
   :windowtype "dock"
   :stacking "fg"
   :wm-ignore false
-  :geometry (geometry :x "0%" :y "0%" :width "100%" :height "26px" :anchor "bottom center")
-  :reserve (struts :side "bottom" :distance "28px")
-  (bar))
+  :geometry (geometry :x "0%" :y "0%" :width "100%" :height "38px" :anchor "bottom center")
+  :reserve (struts :side "bottom" :distance "38px")
+  (bottom-bar))
+
+(defwindow calendar
+  :monitor 0
+  :windowtype "dialog"
+  :stacking "fg"
+  :wm-ignore true
+  :geometry (geometry :x "0%" :y "40px" :anchor "top center")
+  (box :class "popup"
+    (calendar :class "cal")))

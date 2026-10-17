@@ -57,7 +57,7 @@ Output is logged to `~/.cache/dotfiles/install.log`.
 - **`setup/`** holds the opt-in installers:
   - oh-my-zsh, neovim, fonts, kitty, Ghostty, VS Code
   - ssh keys, git identity
-  - docker, CUDA, LaTeX, Regolith, eww (Regolith bottom bar with real app icons), ROS 2
+  - docker, CUDA, LaTeX, Regolith, eww (Regolith top/bottom bars with real app icons), ROS 2
   - tmux plugins, GNOME tweaks, brew cron
 
   Each one checks the OS and skips cleanly where it doesn't apply.
