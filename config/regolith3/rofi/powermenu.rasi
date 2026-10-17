@@ -1,0 +1,35 @@
+/* Power menu (Win+Shift+P, see powermenu.sh): the Spotlight theme with one row of
+   icon tiles instead of a search field and list. Icons are SVGs in icons/. */
+@import "spotlight.rasi"
+
+window {
+  width:    600px;
+  y-offset: 0;
+}
+
+mainbox {
+  children: [ listview ];
+}
+
+listview {
+  lines:   1;
+  columns: 5;
+  padding: 14px;
+  spacing: 10px;
+}
+element {
+  orientation:   vertical;
+  padding:       18px 0 14px 0;
+  spacing:       10px;
+  border-radius: 10px;
+}
+element normal.normal,
+element alternate.normal { background-color: #ffffff0a; }
+element-icon {
+  size: 40px;
+  horizontal-align: 0.5;
+}
+element-text {
+  horizontal-align: 0.5;
+  font: "Iosevka Nerd Font Propo 11";
+}

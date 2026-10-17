@@ -6,6 +6,8 @@ regolith.look.path: /usr/share/regolith-look/nord
 ilia.stylesheet: ~/.config/regolith3/ilia/style.css
 ! Win+Space: rofi, Spotlight-like (rofi/spotlight.rasi)
 wm.program.launcher.app: ~/.config/regolith3/rofi/launcher.sh
+! Win+Shift+P: rofi power menu (Power off, Restart, Sleep, Lock, Log out)
+wm.program.shutdown: ~/.config/regolith3/rofi/powermenu.sh
 
 i3xrocks.label.cpu: 
 i3xrocks.label.wired: 

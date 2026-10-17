@@ -114,7 +114,7 @@
       (box :class "island" :space-evenly false :spacing 14
         (battery-item)
         (item :icon "" :class "power" :tooltip "Power menu"
-              :onclick "~/.config/regolith3/polybar/scripts/powermenu.sh &")))))
+              :onclick "~/.config/regolith3/rofi/powermenu.sh &")))))
 
 ;; ---------------------------------------------------------------- windows
 (defwindow top
