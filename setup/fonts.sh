@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # desc: JetBrainsMono + VictorMono + Iosevka Nerd Fonts (FORCE=1 to reinstall)
+# check: fc-list 2>/dev/null | grep -qi 'JetBrainsMono Nerd' || ls ~/Library/Fonts/JetBrainsMono*Nerd* >/dev/null 2>&1
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

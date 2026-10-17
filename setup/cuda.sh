@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # desc: CUDA toolkit from NVIDIA's apt repo (Ubuntu 20.04/22.04/24.04, NVIDIA GPU only)
+# applies: lspci 2>/dev/null | grep -qi nvidia || [ -e /proc/driver/nvidia/version ]
+# check: command -v nvcc || [ -x /usr/local/cuda/bin/nvcc ]
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

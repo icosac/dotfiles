@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # desc: Visual Studio Code (+ Microsoft apt repo); extensions come from Settings Sync
+# check: command -v code
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

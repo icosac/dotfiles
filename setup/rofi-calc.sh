@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # desc: rofi-calc plugin, patched: calculator results inside the Win+Space launcher
+# applies: command -v apt-get
+# check: [ -f ~/.local/lib/rofi/calc.so ]
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # desc: latest stable Neovim (/opt/nvim + /usr/local/bin/nvim) and AstroNvim plugins (FORCE=1 to reinstall)
+# check: command -v nvim && [ -d ~/.local/share/nvim/lazy ]
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 # desc: Regolith desktop (Ubuntu 22.04/24.04) + polybar/rofi config; REGOLITH_VERSION=v3.4 by default
+# applies: grep -qE '^VERSION_ID="(22.04|24.04)"' /etc/os-release 2>/dev/null
+# check: dpkg -s regolith-desktop
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
 . "$DOTFILES/lib/os.sh"
+. "$DOTFILES/lib/links.sh"
 
 refuse_root
 
@@ -59,9 +62,8 @@ pkg_install \
 # Polybar/rofi use Iosevka, i3xrocks uses JetBrainsMono
 bash "$DOTFILES/setup/fonts.sh"
 
-link "$DOTFILES/config/regolith3" "$HOME/.config/regolith3"
-# Xresources points the wallpaper/lockscreen at ~/.background.png
-link "$DOTFILES/config/regolith3/assets/IMG_2882.png" "$HOME/.background.png"
+# ~/.config/regolith3 and the wallpaper (Xresources points at ~/.background.png): lib/links.sh
+link_all regolith_links
 
 # Wider, Spotlight-like ilia launcher (styled by config/regolith3/ilia/style.css)
 if have gsettings && gsettings list-schemas | grep -qx org.regolith-linux.ilia; then

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # desc: macOS: brew update && upgrade at reboot and daily at 20:00 (cron)
+# applies: [ "$(uname -s)" = Darwin ]
+# check: crontab -l 2>/dev/null | grep -q brew-autoupdate
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

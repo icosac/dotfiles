@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # desc: tmux-mem-cpu-load for the status bar (built into ~/.local/bin on Linux)
+# check: command -v tmux-mem-cpu-load
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

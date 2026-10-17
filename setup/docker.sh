@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # desc: Docker Engine from docker.com (Linux) / Docker Desktop (macOS)
+# check: command -v docker
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

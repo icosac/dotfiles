@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # desc: oh-my-zsh (keeps the repo .zshrc) and zsh as login shell
+# check: [ -d ~/.oh-my-zsh ]
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

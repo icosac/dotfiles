@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # desc: Ghostty terminal (+ Nerd Fonts)
+# check: command -v ghostty || [ -d /Applications/Ghostty.app ]
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

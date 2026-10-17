@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # desc: kitty terminal (+ Nerd Fonts)
+# check: command -v kitty || [ -d /Applications/kitty.app ]
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

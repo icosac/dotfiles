@@ -66,6 +66,13 @@ Output is logged to `~/.cache/dotfiles/install.log`.
   - `setup/ros2.sh` fetches it on demand.
   - In zsh, run `ros2env` to source ROS 2.
 
+## Checking a machine
+
+`./check.sh` reports what is missing or off on this machine:
+- base packages not installed yet (`-q` prints just their names, for piping into `apt-get install`);
+- optional setups not installed (orange) or not applicable here (red), from each `setup/*.sh`'s `# check:` / `# applies:` lines;
+- configs (listed in `lib/links.sh`) that are not linked, replaced by a local copy, pointing elsewhere, or linked with uncommitted edits.
+
 ## Private and machine-specific settings
 
 Nothing personal is committed. Keep it in these files, which live only in `$HOME`:

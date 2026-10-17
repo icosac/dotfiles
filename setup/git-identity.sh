@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # desc: set git name/email and pull policy in ~/.gitconfig.local (kept out of the repo)
+# check: git config -f ~/.gitconfig.local user.email
 
 set -euo pipefail
 

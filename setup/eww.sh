@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # desc: eww widgets (Regolith top/bottom bars, real app icons), built from source; FORCE=1 to rebuild
+# applies: command -v apt-get
+# check: [ -x ~/.local/bin/eww ]
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

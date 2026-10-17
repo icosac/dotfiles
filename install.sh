@@ -57,6 +57,7 @@ export DOTFILES
 
 . "$DOTFILES/lib/common.sh"
 . "$DOTFILES/lib/os.sh"
+. "$DOTFILES/lib/links.sh"
 
 usage() {
   cat <<EOF
@@ -143,23 +144,7 @@ if [ -f "$HOME/.gitconfig" ] && [ ! -L "$HOME/.gitconfig" ] && [ ! -f "$HOME/.gi
   [ -f "$HOME/.gitconfig.local" ] && ok "kept git identity in ~/.gitconfig.local"
 fi
 
-if is_macos; then
-  VSCODE_USER="$HOME/Library/Application Support/Code/User"
-else
-  VSCODE_USER="$HOME/.config/Code/User"
-fi
-
-C="$DOTFILES/config"
-link "$C/zsh/.zshrc"                "$HOME/.zshrc"
-link "$C/git/.gitconfig"            "$HOME/.gitconfig"
-link "$C/tmux/.tmux.conf"           "$HOME/.tmux.conf"
-link "$C/tmux/tmux-status"           "$HOME/.local/bin/tmux-status"
-link "$C/latex/.latexmkrc"          "$HOME/.latexmkrc"
-link "$C/kitty/.config/kitty"       "$HOME/.config/kitty"
-link "$C/ghostty/.config/ghostty"   "$HOME/.config/ghostty"
-link "$C/nvim/.config/nvim"         "$HOME/.config/nvim"
-link "$C/vscode/settings.json"      "$VSCODE_USER/settings.json"
-link "$C/vscode/keybindings.json"   "$VSCODE_USER/keybindings.json"
+link_all base_links  # the list is in lib/links.sh
 
 # Ask for name/email/pull policy if ~/.gitconfig.local lacks them
 bash "$DOTFILES/setup/git-identity.sh" || warn "git identity not configured"

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # desc: TeX Live + latexmk + pygments (for minted); ~/.latexmkrc is linked by install.sh
+# check: command -v latexmk
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

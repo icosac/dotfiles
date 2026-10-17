@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # desc: Linux desktop settings: flat mouse, no screen blanking/screensaver, Caps<->Esc on the built-in keyboard
+# applies: [ "$(uname -s)" = Linux ] && command -v gsettings
+# check: gsettings get org.gnome.desktop.peripherals.mouse accel-profile | grep -q flat
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

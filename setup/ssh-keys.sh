@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # desc: ed25519 keys for GitHub/GitLab/Bitbucket + ~/.ssh/config.d/dotfiles
+# check: [ -f ~/.ssh/config.d/dotfiles ]
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"

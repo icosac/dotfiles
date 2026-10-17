@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # desc: ROS 2 via Tiryoh's scripts (18.04 dashing, 20.04 foxy, 22.04 humble, 24.04 jazzy); ROS2_PACKAGE=desktop|ros-base
+# applies: [ "$(uname -s)" = Linux ]
+# check: ls /opt/ros/*/setup.bash
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
