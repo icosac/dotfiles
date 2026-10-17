@@ -3,7 +3,9 @@
 
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="bira"
-plugins=(git)
+plugins=(git extract docker colored-man-pages zsh-autosuggestions)
+# Extra completion definitions: must be on fpath before oh-my-zsh runs compinit
+fpath+=("${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-completions/src")
 
 if [[ -r "$ZSH/oh-my-zsh.sh" ]]; then
   source "$ZSH/oh-my-zsh.sh"
