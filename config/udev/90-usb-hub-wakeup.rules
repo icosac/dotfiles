@@ -1,0 +1,5 @@
+# Let USB keyboards behind hubs (e.g. on a dock) wake the laptop from standby.
+# A wake signal must pass every hub between the device and the computer; the kernel
+# enables wakeup on keyboards but not on hubs. Installed by setup/linux-settings.sh.
+# Side effect: plugging a device into one of these hubs can also wake the laptop.
+ACTION=="add|change", SUBSYSTEM=="usb", DEVTYPE=="usb_device", ATTR{bDeviceClass}=="09", TEST=="power/wakeup", ATTR{power/wakeup}="enabled"

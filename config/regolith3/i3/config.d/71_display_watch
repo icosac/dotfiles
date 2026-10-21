@@ -1,0 +1,3 @@
+# Restart picom and the bars when the monitor layout changes (lid, display settings,
+# DisplayLink dock): see ../../display-watch.sh. Replaces any previous copy on reload.
+exec_always --no-startup-id ~/.config/regolith3/display-watch.sh

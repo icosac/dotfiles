@@ -1,0 +1,10 @@
+## Launch // File Search // <><Shift> f ##
+# Regolith's own file-search key (Win+Alt+Space) never fires here: the keyboard
+# option grp:alt_space_toggle uses Alt+Space to switch layouts. rofi/launcher.sh
+# treats this same shortcut as "close" while the search is open.
+# Win+Shift+F used to toggle floating: that moved to Win+Shift+D ("detach"), see
+# wm.binding.float_toggle in ../../Xresources.
+bindsym $mod+Shift+f exec --no-startup-id ~/.config/regolith3/rofi/launcher.sh files
+
+## Modify // Window Floating Toggle // <><Shift> d ##
+# (documentation only, for the keybinding viewer: the binding itself is Regolith's)

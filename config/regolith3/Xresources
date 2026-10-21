@@ -2,12 +2,23 @@ regolith.wallpaper.file:  ~/.background.png
 regolith.lockscreen.wallpaper.file:  ~/.background.png
 regolith.look.path: /usr/share/regolith-look/nord
 
-! Other ilia dialogs (Win+Shift+Space, Win+Ctrl+Space...): Nord style matching the eww bars
+! Launchers in rofi, Spotlight-like (rofi/launcher.sh, rofi/spotlight.rasi)
+wm.program.launcher.app: ~/.config/regolith3/rofi/launcher.sh apps
+wm.program.launcher.cmd: ~/.config/regolith3/rofi/launcher.sh run
+wm.program.launcher.window: ~/.config/regolith3/rofi/launcher.sh window
+wm.program.file_search: ~/.config/regolith3/rofi/launcher.sh files
+wm.program.help: ~/.config/regolith3/rofi/launcher.sh keys
+! Power menu (rofi/powermenu.sh): Win+Shift+P / B / E pre-select power off / restart / log out
+wm.program.shutdown: ~/.config/regolith3/rofi/powermenu.sh poweroff
+wm.program.reboot: ~/.config/regolith3/rofi/powermenu.sh reboot
+wm.program.logout: ~/.config/regolith3/rofi/powermenu.sh logout
+! Win+Shift+D ("detach") toggles floating; Win+Shift+F opens the file search instead
+! (i3/config.d/25_file_search)
+wm.binding.float_toggle: Shift+d
+! picom through compositor.sh: no vsync when only DisplayLink monitors are active
+wm.program.compositor: ~/.config/regolith3/compositor.sh
+! Any ilia dialog still left (e.g. the look selector): Nord style matching the eww bars
 ilia.stylesheet: ~/.config/regolith3/ilia/style.css
-! Win+Space: rofi, Spotlight-like (rofi/spotlight.rasi)
-wm.program.launcher.app: ~/.config/regolith3/rofi/launcher.sh
-! Win+Shift+P: rofi power menu (Power off, Restart, Sleep, Lock, Log out)
-wm.program.shutdown: ~/.config/regolith3/rofi/powermenu.sh
 
 i3xrocks.label.cpu: 
 i3xrocks.label.wired: 

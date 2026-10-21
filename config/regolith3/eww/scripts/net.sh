@@ -1,19 +1,29 @@
 #!/usr/bin/env bash
 # Wired/wireless status for the eww bar, one JSON line per second:
 #   {"wired": {"ip": "10.0.0.2", "down": "2 KB/s", "up": "0 KB/s"}, "wifi": {...}}
-# "ip" is empty when the interface is down. Interfaces are detected, not hardcoded.
+# "ip" is empty when the interface is down. Interfaces are re-detected every second.
 
 set -uo pipefail
 
-wired="" wifi=""
-for d in /sys/class/net/*; do
-  n=${d##*/}
-  if [ -d "$d/wireless" ]; then
-    [ -n "$wifi" ] || wifi=$n
-  elif [ -e "$d/device" ] && [[ $n == en* || $n == eth* ]]; then
-    [ -n "$wired" ] || wired=$n
-  fi
-done
+# Pick the interfaces to show, every second: laptop port, dock or USB adapter, whichever
+# is in use. Prefer the one carrying the default route, then any with an IPv4 address,
+# then the first one found (shown as disconnected).
+pick() {  # wired|wifi
+  local kind=$1 d n default first="" up=""
+  default=$(ip route show default 2>/dev/null | awk '{ for (i = 1; i < NF; i++) if ($i == "dev") { print $(i + 1); exit } }')
+  for d in /sys/class/net/*; do
+    n=${d##*/}
+    if [ "$kind" = wifi ]; then
+      [ -d "$d/wireless" ] || continue
+    else
+      [ ! -d "$d/wireless" ] && [ -e "$d/device" ] && [[ $n == en* || $n == eth* ]] || continue
+    fi
+    [ "$n" = "$default" ] && { echo "$n"; return; }
+    [ -z "$first" ] && first=$n
+    [ -z "$up" ] && ip -4 -o addr show dev "$n" 2>/dev/null | grep -q inet && up=$n
+  done
+  echo "${up:-$first}"
+}
 
 rate() {  # bytes/s -> "N KB/s" / "N.N MB/s"
   if [ "$1" -ge 1048576 ]; then
@@ -39,6 +49,7 @@ iface_json() {
 }
 
 while :; do
+  wired=$(pick wired) wifi=$(pick wifi)
   iface_json "$wired"; w=$json
   iface_json "$wifi"
   printf '{"wired": %s, "wifi": %s}\n' "$w" "$json"

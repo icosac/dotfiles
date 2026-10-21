@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# desc: Linux desktop settings: flat mouse, no screen blanking/screensaver, Caps<->Esc on the built-in keyboard
+# desc: Linux desktop settings: flat mouse, no screen blanking/screensaver, Caps<->Esc on the built-in keyboard, USB keyboards on docks wake from standby
 # applies: [ "$(uname -s)" = Linux ] && command -v gsettings
 # check: gsettings get org.gnome.desktop.peripherals.mouse accel-profile | grep -q flat
 set -euo pipefail
@@ -55,4 +55,18 @@ else
   as_root systemd-hwdb update
   as_root udevadm trigger --subsystem-match=input --action=change
   ok "Caps Lock/Escape swapped on the built-in keyboard"
+fi
+
+# USB keyboards behind hubs (docks) can wake the laptop from standby: enable wakeup on
+# every USB hub along the way (udev rule; applied now and whenever a hub appears)
+rule_src="$DOTFILES/config/udev/90-usb-hub-wakeup.rules"
+rule_dst=/etc/udev/rules.d/90-usb-hub-wakeup.rules
+if cmp -s "$rule_src" "$rule_dst"; then
+  ok "USB hubs may wake the laptop (already set)"
+else
+  log "allowing USB hubs (docks) to wake the laptop"
+  as_root install -D -m 0644 "$rule_src" "$rule_dst"
+  as_root udevadm control --reload
+  as_root udevadm trigger --subsystem-match=usb --action=change
+  ok "USB hubs may wake the laptop"
 fi
