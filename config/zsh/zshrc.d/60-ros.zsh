@@ -1,3 +1,9 @@
+# colcon's end-of-build desktop notification: skip its python-notify2 backend so it falls
+# back to `notify-send`. Regolith's notification daemon (rofication) declares the hints
+# argument as strings only (a{ss}, the spec says a{sv}), so notify2's byte hint
+# "transient" fails with "Expected a string or unicode object"; notify-send works.
+export COLCON_EXTENSION_BLOCKLIST=colcon_notification.desktop_notification.notify2
+
 # ROS 2 is not sourced automatically. Run `ros_source`.
 ros_source() {
   local setup
