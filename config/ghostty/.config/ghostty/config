@@ -14,7 +14,12 @@ font-size = 10
 
 theme = nordic
 
-confirm-close-surface = false
+# Always ask before closing a window, tab or split (default "true" asks only while
+# a command is running; shell integration tells Ghostty when the prompt is idle)
+confirm-close-surface = always
+
+# Thinner tab bar (GTK only; relative paths are resolved from this directory)
+gtk-custom-css = tabs.css
 cursor-style-blink = true
 
 # No sound; on bell put 🔔 in the tab title and ask for attention when unfocused

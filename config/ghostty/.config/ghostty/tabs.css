@@ -1,0 +1,42 @@
+/* Thinner tab bar, loaded by gtk-custom-css in ./config. libadwaita's default bar is about
+   46px (34px tabs plus 6px above and below); this one is about 24px, a bit under the eww
+   top bar's islands (30px).
+   The tallest thing in a tab sets its height: the title text and the close button's 16px
+   icon. min-height alone can't go below them, so to go thinner shrink those (font-size,
+   -gtk-icon-size) or the margin. */
+/* libadwaita pads the tab row 6px above and below (3px through its toolbarview rule,
+   repeated here so this one wins); the tabs' own margin below provides the spacing */
+tabbar tabbox,
+toolbarview > .top-bar .collapse-spacing tabbar tabbox,
+toolbarview > .bottom-bar .collapse-spacing tabbar tabbox {
+  min-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+tabbar tab {
+  min-height: 0;
+  margin: 4px 0;       /* space above and below each tab */
+  padding: 0 4px;
+  border-radius: 6px;
+}
+
+tabbar tab label {
+  font-size: 9pt;
+}
+
+/* close button on each tab */
+tabbar tab button.image-button {
+  min-width: 18px;
+  min-height: 18px;
+  -gtk-icon-size: 12px;
+}
+
+/* the new-tab / overflow buttons at the ends of the bar */
+tabbar .start-action,
+tabbar .end-action,
+toolbarview > .top-bar .collapse-spacing tabbar .start-action,
+toolbarview > .top-bar .collapse-spacing tabbar .end-action {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
