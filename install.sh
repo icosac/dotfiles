@@ -61,10 +61,13 @@ export DOTFILES
 
 usage() {
   cat <<EOF
-Usage: ./install.sh [options] [setup...]
+Usage: ./install.sh [options] [packages] [setup...]
 
 Links every config in config/ into \$HOME (backing up what was there), installs
 base packages, then runs the named opt-in setups from setup/.
+
+  packages           only the base packages (packages/apt*.txt or packages/brew.txt):
+                     no linking. Combine with setups to run those too
 
 Options:
   -n, --dry-run      print what would happen, change nothing
@@ -78,18 +81,20 @@ Options:
 Examples:
   ./install.sh                       # link + base packages
   ./install.sh ohmyzsh neovim fonts  # ...plus those setups
+  ./install.sh packages              # base packages only
   ./install.sh --link-only
 EOF
 }
 
 list_setups() {
   local f
+  printf '  %-14s %s\n' packages "base packages only (apt or brew list), no linking"
   for f in "$DOTFILES"/setup/*.sh; do
     printf '  %-14s %s\n' "$(basename "$f" .sh)" "$(sed -n 's/^# desc: //p' "$f")"
   done
 }
 
-ARGS="$*" LINK_ONLY=0 PACKAGES=1 SETUPS=()
+ARGS="$*" LINK_ONLY=0 PACKAGES=1 LINK=1 SETUPS=()
 while [ $# -gt 0 ]; do
   case "$1" in
     -n|--dry-run)   DRY_RUN=1 ;;
@@ -100,6 +105,7 @@ while [ $# -gt 0 ]; do
     --no-packages)  PACKAGES=0 ;;
     --list)         list_setups; exit 0 ;;
     -h|--help)      usage; exit 0 ;;
+    packages)       LINK=0 ;;  # not a setup/ script: the base package step on its own
     -*)             usage; die "unknown option $1" ;;
     *)              [ -f "$DOTFILES/setup/$1.sh" ] || die "no such setup '$1' (see --list)"
                     SETUPS+=("$1") ;;
@@ -111,6 +117,9 @@ export DRY_RUN VERBOSE BACKUP_DIR
 refuse_root
 if [ "$LINK_ONLY" = 1 ] && [ ${#SETUPS[@]} -gt 0 ]; then
   die "--link-only cannot be combined with setups"
+fi
+if [ "$LINK" = 0 ] && { [ "$LINK_ONLY" = 1 ] || [ "$PACKAGES" = 0 ]; }; then
+  die "'packages' cannot be combined with --link-only or --no-packages"
 fi
 
 LOG_DIR="$HOME/.cache/dotfiles"
@@ -132,27 +141,29 @@ if [ "$DRY_RUN" != 1 ] && [ ${#SUDO[@]} -gt 0 ] && { [ "$PACKAGES" = 1 ] || [ ${
 fi
 
 # ---------------------------------------------------------------------------
-section "Linking configs"
+if [ "$LINK" = 1 ]; then
+  section "Linking configs"
 
-# Keep an existing git identity: move [user] from a real ~/.gitconfig into ~/.gitconfig.local
-if [ -f "$HOME/.gitconfig" ] && [ ! -L "$HOME/.gitconfig" ] && [ ! -f "$HOME/.gitconfig.local" ]; then
-  for key in user.name user.email user.signingkey; do
-    if val="$(git config -f "$HOME/.gitconfig" "$key")"; then
-      run git config -f "$HOME/.gitconfig.local" "$key" "$val"
-    fi
-  done
-  [ -f "$HOME/.gitconfig.local" ] && ok "kept git identity in ~/.gitconfig.local"
-fi
+  # Keep an existing git identity: move [user] from a real ~/.gitconfig into ~/.gitconfig.local
+  if [ -f "$HOME/.gitconfig" ] && [ ! -L "$HOME/.gitconfig" ] && [ ! -f "$HOME/.gitconfig.local" ]; then
+    for key in user.name user.email user.signingkey; do
+      if val="$(git config -f "$HOME/.gitconfig" "$key")"; then
+        run git config -f "$HOME/.gitconfig.local" "$key" "$val"
+      fi
+    done
+    [ -f "$HOME/.gitconfig.local" ] && ok "kept git identity in ~/.gitconfig.local"
+  fi
 
-link_all base_links  # the list is in lib/links.sh
+  link_all base_links  # the list is in lib/links.sh
 
-# Ask for name/email/pull policy if ~/.gitconfig.local lacks them
-bash "$DOTFILES/setup/git-identity.sh" || warn "git identity not configured"
+  # Ask for name/email/pull policy if ~/.gitconfig.local lacks them
+  bash "$DOTFILES/setup/git-identity.sh" || warn "git identity not configured"
 
-# Repo-local privacy guard (blocks committing emails / home paths)
-if [ "$(git -C "$DOTFILES" config core.hooksPath || true)" != .githooks ]; then
-  run git -C "$DOTFILES" config core.hooksPath .githooks
-  ok "enabled pre-commit privacy check"
+  # Repo-local privacy guard (blocks committing emails / home paths)
+  if [ "$(git -C "$DOTFILES" config core.hooksPath || true)" != .githooks ]; then
+    run git -C "$DOTFILES" config core.hooksPath .githooks
+    ok "enabled pre-commit privacy check"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -160,6 +171,8 @@ if [ "$PACKAGES" = 1 ]; then
   section "Base packages ($OS_ID $OS_VERSION)"
   if is_apt; then
     pkg_install_list "$DOTFILES/packages/apt.txt" "$DOTFILES/packages/apt-$OS_VERSION.txt"
+    # Not in apt before Ubuntu 25.04 / Debian 13: the setup falls back to the upstream .deb
+    bash "$DOTFILES/setup/fastfetch.sh" || warn "fastfetch not installed"
   elif is_macos; then
     if ! have brew; then
       log "installing Homebrew"

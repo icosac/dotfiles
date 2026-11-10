@@ -1,0 +1,3 @@
+# btop / tldr are not packaged for 20.04 (btop arrived in 22.04)
+!btop
+!tldr

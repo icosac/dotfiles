@@ -1,8 +1,11 @@
 # Base packages for macOS
+btop
 cmake
+fastfetch
 fd
 git
 ripgrep
+tlrc  # the official tldr client (the `tldr` formula is unmaintained); command: tldr
 tmux
 tmux-mem-cpu-load
 wget

@@ -25,6 +25,7 @@ Run it as your normal user. It calls `sudo` only for package installs. Every ste
 | Command | What it does |
 | --- | --- |
 | `./install.sh` | link configs, install base packages |
+| `./install.sh packages` | only the base packages (apt or brew list), no linking |
 | `./install.sh --link-only` | only link configs (no sudo) |
 | `./install.sh --dry-run` | show what would change |
 | `./install.sh --list` | list the opt-in setups |

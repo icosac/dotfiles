@@ -1,2 +1,5 @@
 # fd-find is not packaged for Debian 10
 !fd-find
+# btop / tldr are not packaged for Debian 10
+!btop
+!tldr

@@ -1,12 +1,26 @@
 #!/usr/bin/env bash
-# desc: tmux-mem-cpu-load for the status bar (built into ~/.local/bin on Linux)
-# check: command -v tmux-mem-cpu-load
+# desc: tmux-resurrect + tmux-continuum (sessions survive reboots), tmux-mem-cpu-load for the status bar
+# check: command -v tmux-mem-cpu-load && [ -d ~/.tmux/plugins/tmux-resurrect ] && [ -d ~/.tmux/plugins/tmux-continuum ]
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/common.sh"
 . "$DOTFILES/lib/os.sh"
 
 refuse_root
+
+# tmux-resurrect saves and restores sessions (windows, panes, folders, programs);
+# tmux-continuum saves every 15 minutes and restores when tmux starts. Loaded at the end
+# of config/tmux/.tmux.conf. Cloned (or updated) into ~/.tmux/plugins, no plugin manager.
+plugins="$HOME/.tmux/plugins"
+for name in tmux-resurrect tmux-continuum; do
+  if [ -d "$plugins/$name/.git" ]; then
+    run git -C "$plugins/$name" pull -q --ff-only || warn "could not update $name"
+  else
+    run mkdir -p "$plugins"
+    run git clone -q --depth 1 "https://github.com/tmux-plugins/$name" "$plugins/$name"
+  fi
+  ok "$name"
+done
 
 if have tmux-mem-cpu-load && [ "${FORCE:-0}" != 1 ]; then
   ok "tmux-mem-cpu-load already installed"

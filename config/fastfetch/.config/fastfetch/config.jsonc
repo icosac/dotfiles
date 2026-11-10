@@ -1,0 +1,59 @@
+// fastfetch, Nord colours (https://www.nordtheme.com/docs/colors-and-palettes), to match
+// Ghostty, kitty and tmux. Docs: `fastfetch --help`, `fastfetch --list-modules`,
+// `fastfetch --help <module>-format`; every option with its default: `fastfetch --gen-config`.
+//
+// Icons are Nerd Font glyphs written as \u escapes (a surrogate pair for the ones above U+FFFF).
+//
+// Nord colours used:  frost  #8FBCBB #88C0D0 #81A1C1 #5E81AC
+//                     aurora #BF616A red, #EBCB8B yellow, #A3BE8C green, #B48EAD purple
+//                     snow   #D8DEE9 (values)   polar #4C566A (separators)
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "type": "builtin", // the distro's full-size logo (Ubuntu, macOS, ...); "small" for the compact one
+    "color": { "1": "#88C0D0", "2": "#5E81AC" },
+    "padding": { "top": 0, "left": 1, "right": 3 }
+  },
+  "display": {
+    "separator": "  ",
+    "color": {
+      "keys": "#81A1C1",
+      "title": "#88C0D0",
+      "output": "#D8DEE9",
+      "separator": "#4C566A"
+    },
+    "key": { "width": 12 },
+    "size": { "binaryPrefix": "jedec" }, // GB with 1024 steps, like most tools
+    "bar": {
+      "char": { "elapsed": "■", "total": "·" },
+      "color": { "elapsed": "#88C0D0", "total": "#4C566A", "border": "#4C566A" },
+      "width": 10
+    },
+    "percent": {
+      "type": ["num", "bar"],
+      "color": { "green": "#A3BE8C", "yellow": "#EBCB8B", "red": "#BF616A" }
+    }
+  },
+  "modules": [
+    { "type": "title", "format": "{user-name-colored}{at-symbol-colored}{host-name-colored}" },
+    { "type": "separator", "string": "─", "outputColor": "#4C566A" },
+    { "type": "os",       "key": "\uf108  os",     "format": "{pretty-name}" },
+    { "type": "kernel",   "key": "\uf013  kernel" },
+    { "type": "uptime",   "key": "\uf017  uptime" },
+    { "type": "packages", "key": "\uf187  pkgs" },
+    { "type": "shell",    "key": "\uf120  shell" },
+    { "type": "terminal", "key": "\uf489  term" },
+    { "type": "wm",       "key": "\uf2d2  wm",     "format": "{pretty-name}" },
+    "break",
+    { "type": "cpu",      "key": "\uf4bc  cpu",    "keyColor": "#8FBCBB", "format": "{name} ({cores-logical})" },
+    { "type": "gpu",      "key": "\udb82\udcae  gpu",    "keyColor": "#8FBCBB", "hideType": "integrated" },
+    { "type": "memory",   "key": "\udb80\udf5b  memory", "keyColor": "#8FBCBB" },
+    // "/" and "/home": fastfetch lists only folders that are mount points, so /home gets
+    // its own line only when it is a separate partition. Each line is keyed by its mount
+    { "type": "disk",     "key": "\uf0a0  {mountpoint}", "keyColor": "#8FBCBB", "folders": "/:/home" },
+    { "type": "battery",  "key": "\uf240  battery", "keyColor": "#8FBCBB" },
+    { "type": "localip",  "key": "\udb82\ude5f  ip",     "keyColor": "#8FBCBB", "compact": true, "showIpv6": false },
+    "break",
+    { "type": "colors", "symbol": "circle", "paddingLeft": 2 }
+  ]
+}

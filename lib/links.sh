@@ -20,6 +20,7 @@ base_links() {
     latex    "$C/latex/.latexmkrc"        "$HOME/.latexmkrc" \
     kitty    "$C/kitty/.config/kitty"     "$HOME/.config/kitty" \
     ghostty  "$C/ghostty/.config/ghostty" "$HOME/.config/ghostty" \
+    fastfetch "$C/fastfetch/.config/fastfetch" "$HOME/.config/fastfetch" \
     neovim   "$C/nvim/.config/nvim"       "$HOME/.config/nvim" \
     vscode   "$C/vscode/settings.json"    "$vscode/settings.json" \
     vscode   "$C/vscode/keybindings.json" "$vscode/keybindings.json"
