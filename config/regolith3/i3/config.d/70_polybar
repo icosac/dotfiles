@@ -1,5 +1,2 @@
 # Top and bottom bars (eww or Polybar), see ~/.config/regolith3/bars.sh
 exec_always --no-startup-id ~/.config/regolith3/bars.sh
-
-exec_always --no-startup-id pkill -x i3xrocks
-exec_always --no-startup-id pkill -x i3bar

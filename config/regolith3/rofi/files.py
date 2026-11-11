@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-rofi script mode: files and folders under $HOME, so the Win+Space launcher finds
-them next to the apps (see launcher.sh). Selecting one opens it with xdg-open.
+rofi script mode: files and folders under $HOME, for the Win+Shift+F file search
+(see launcher.sh). Selecting one opens it with xdg-open.
 
 The list comes from a cache that is refreshed in the background (fd, about a
 quarter of a second), so the launcher never waits for the file scan.
@@ -15,8 +15,14 @@ HOME = os.path.expanduser("~")
 CACHE = os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.join(HOME, ".cache")), "rofi-files.list")
 MAX_AGE = 120  # seconds before a launch triggers a background rescan
 # fd already skips hidden and .gitignored files; these are just noise in a launcher
+# (install/log/devel: colcon and catkin workspaces)
 EXCLUDE = ["snap", "miniconda3", "anaconda3", "node_modules", "__pycache__", "go/pkg",
-           "*.o", "*.pyc", "build", "target", "venv", ".venv"]
+           "*.o", "*.pyc", "build", "target", "venv", ".venv", "site-packages",
+           "install", "log", "devel"]
+# rofi slows down by about 4 s per 100k rows: deep source trees and the insides of
+# extracted downloads (datasets, SDKs) were most of them
+MAX_DEPTH = 5  # ~/a/b/c/d/file
+DOWNLOADS = os.path.join(HOME, "Downloads")  # only what sits directly in it
 
 ICONS = {
     ".pdf": "application-pdf", ".png": "image-x-generic", ".jpg": "image-x-generic",
@@ -44,10 +50,12 @@ def refresh():
     exe = fd()
     if not exe:
         return
-    cmd = [exe, "--type", "f", "--type", "d", "--absolute-path", "--color", "never", "."]
+    cmd = [exe, "--type", "f", "--type", "d", "--absolute-path", "--color", "never"]
     for e in EXCLUDE:
         cmd += ["--exclude", e]
-    out = subprocess.run(cmd + [HOME], capture_output=True, text=True).stdout
+    out = subprocess.run(cmd + ["--max-depth", str(MAX_DEPTH), "--exclude", "/Downloads", ".", HOME],
+                         capture_output=True, text=True).stdout
+    out += subprocess.run(cmd + ["--max-depth", "1", ".", DOWNLOADS], capture_output=True, text=True).stdout
     rows = []
     for path in out.splitlines():
         path = path.rstrip("/")

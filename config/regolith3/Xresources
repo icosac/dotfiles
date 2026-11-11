@@ -30,3 +30,7 @@ i3xrocks.value.font: JetBrainsMono Nerd Font Mono 13
 i3xrocks.label.font: JetBrainsMono Nerd Font Mono 13
 
 wm.binding.bar_toggle: F24
+! The Regolith i3bar (/usr/share/regolith/i3/config.d/70_bar, bottom by default) stays
+! hidden and runs no i3xrocks: eww/Polybar draw the bars (bars.sh)
+wm.bar.mode: invisible
+wm.bar.status_command: /bin/true
